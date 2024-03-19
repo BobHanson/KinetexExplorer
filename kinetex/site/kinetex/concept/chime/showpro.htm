@@ -1,0 +1,97 @@
+<html>
+<head>
+<title>Protein Investigator</title>
+<script type="text/javascript" src=showpro.js></script>
+<script type="text/javascript" src=showdata.js></script>
+</head>
+<body onload=doinit()>
+<form name=frm1 action="javascript:void(0)" method=post onsubmit='doload(document.frm1.pdb.value)'>
+<table border cellpadding=2 cellspacing=0>
+<tr><td>
+<script type="text/javascript">writeChime()</script>
+</td>
+<td valign=top>
+<h2>Protein Investigator</H2>
+<center><a href=javascript:top.close()>close</a></center>
+<br>Structures:
+<script type="text/javascript">writeSelections()</script>
+<br>
+File: <INPUT type=text name=pdb value='1ash.pdb' size=10>
+
+<INPUT type=button value=Load onclick='loadfile()'>
+<input type=button value="Notes" onclick=donotes()>
+
+zoom: 
+<a href="javascript:setscale(1)">x1</a>&nbsp;
+<a href="javascript:setscale(2)">x2</a>&nbsp;
+<a href="javascript:setscale(4)">x4</a>&nbsp;
+<br>primary structure: <a href="javascript:setview('pri',true)">on</a>
+&nbsp;<a href="javascript:setview('pri',false)">off</a>
+
+<br>secondary structure: <a href="javascript:setview('sec',true)">on</a>
+&nbsp;<a href="javascript:setview('sec',false)">off</a>
+
+<br>nonprotein molecules: <a href="javascript:setview('non',true)">on</a>
+&nbsp;<a href="javascript:setview('non',false)">off</a>
+
+<br>solvent molecules: <a href="javascript:setview('solv',true)">on</a>
+&nbsp;<a href="javascript:setview('solv',false)">off</a>
+
+<br>hydrogen bonds: <a href="javascript:setview('hbonds',true)">on</a>
+&nbsp;<a href="javascript:setview('hbonds',false)">off</a>
+
+<br>color by: <select name=color onchange=docolor()>
+<option value="structure;color structure">secondary structure
+<option value="color chain">chain
+<option value="color group">N(red) to C(blue)
+<option value="color amino">amino acid type
+<option selected value="color cpk">atom type
+</select>
+
+
+<p>
+<A href="javascript:showaa('gly,ala,val,leu,ile')"><FONT color=green><B>aliphatic</B></FONT></A>:
+ <A href="javascript:showaa('gly')"><FONT color=gray><B>gly</B></FONT></A>
+ <A href="javascript:showaa('ala')"><FONT color=gray><B>ala</B></FONT></A>
+ <A href="javascript:showaa('val')"><FONT color=green><B>val</B></FONT></A>
+ <A href="javascript:showaa('leu')"><FONT color=green><B>leu</B></FONT></A>
+ <A href="javascript:showaa('ile')"><FONT color=green><B>ile</B></FONT></A>
+<BR><A href="javascript:showaa('arg,lys')"><FONT color=blue><B>cations at pH 7</B></FONT></A>:
+ <A href="javascript:showaa('arg')"><FONT color=blue><B>arg</B></FONT></A>
+ <A href="javascript:showaa('lys')"><FONT color=blue><B>lys</B></FONT></A>
+<BR><A href="javascript:showaa('asp,glu')"><FONT color=red><B>anions at pH 7</B></FONT></A>:
+ <A href="javascript:showaa('asp')"><FONT color=red><B>asp</B></FONT></A>
+ <A href="javascript:showaa('glu')"><FONT color=red><B>glu</B></FONT></A>
+<BR>&nbsp;&nbsp;<A href="javascript:showaa('asp,glu,arg,lys')"><FONT color=purple><B>all ions at pH 7</B></FONT></A>
+<BR><A href="javascript:showaa('ser,thr')"><FONT color=orange><B>nonaromatic hydroxy:</B></FONT></A>:
+ <A href="javascript:showaa('ser')"><FONT color=orange><B>ser</B></FONT></A>
+ <A href="javascript:showaa('thr')"><FONT color=orange><B>thr</B></FONT></A>
+<BR><A href="javascript:showaa('cys,met;ssbonds')"><FONT color=flesh><B>S-containing</B></FONT></A>:
+ <A href="javascript:showaa('cys;ssbonds')"><FONT color=flesh><B>cys</B></FONT></A>
+ <A href="javascript:showaa('met')"><FONT color=flesh><B>met</B></FONT></A>
+<BR><A href="javascript:showaa('asn,gln')"><FONT color=cyan><B>amide</B></FONT></A>:
+ <A href="javascript:showaa('asn')"><FONT color=cyan><B>asn</B></FONT></A>
+ <A href="javascript:showaa('gln')"><FONT color=cyan><B>gln</B></FONT></A>
+<BR><A href="javascript:showaa('phe,tyr')"><FONT color=darkblue><B>benzene aromatic</B></FONT></A>:
+ <A href="javascript:showaa('phe')"><FONT color=darkblue><B>phe</B></FONT></A>
+ <A href="javascript:showaa('tyr')"><FONT color=darkblue><B>tyr</B></FONT></A>
+<BR><A href="javascript:showaa('pro,his,trp')"><FONT color=brown><B>heterocyclic</B></FONT></A>:
+ <A href="javascript:showaa('pro')"><FONT color=#C08080><B>pro</B></FONT></A>
+ <A href="javascript:showaa('his')"><FONT color=#8080FF><B>his</B></FONT></A>
+ <A href="javascript:showaa('trp')"><FONT color=violet><B>trp</B></FONT></A>
+
+<P>
+Background: <a href="javascript:executeScript('background black')">black</a> &nbsp;&nbsp; 
+ <a href="javascript:executeScript('background white')">white</a>
+<br>
+ <a href="javascript:executeScript('clipboard')">Send to Clipboard</a>
+
+</form>
+<form name=frm2 action="javascript://" onsubmit=show(document.frm2.rascmd.value,false,false)>
+<TR><TD colspan=2>Rasmol command: <INPUT type=text name=rascmd value='select *;' size=80>
+<INPUT type=button value=Execute onclick='show(document.frm2.rascmd.value)'>
+</td></tr>
+</TABLE>
+</FORM>
+</BODY>
+</HTML>

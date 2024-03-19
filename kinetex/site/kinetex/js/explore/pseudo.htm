@@ -1,0 +1,187 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Model_init(1)
+>
+
+<script language=javascript>
+Explore_sayh("pseudo",isqonly)
+
+function notifyexpt(swhat,smodel){
+	if(swhat!="reset")return
+	updateexpt("rxn2")
+	updateexpt("rxn3")
+}
+
+function updateexpt(smodel){
+ ModelInfo[smodel].RateLaw=new Array()
+ ModelInfo[smodel].RateEqn=new Array()
+ Model_setRateLaw(ModelInfo["rxn1"].RateLaw[0],smodel)
+ Model_setConstant("k",ModelInfo["rxn1"].k,smodel)
+ Model_setConcentration("A",ModelInfo["rxn1"].Component[0].conc0,true,smodel)
+ Model_setConcentration("B",ModelInfo["rxn1"].Component[1].conc0,true,smodel)
+ Expt_reset(smodel)
+
+isfirst=true
+kval=ModelInfo["rxn1"]["k"]
+cb=ModelInfo["rxn1"].Component[1].conc0
+kpval=kval*cb
+aval=-ModelInfo["rxn1"].Component[0].coeff
+slope=(isfirst?-kpval*aval:kpval*aval)
+kunits=(isfirst?" /second":" M-1 sec-1")
+t12=(isfirst?Util_roundoff(Math.log(2)/kval/aval,1):"")
+
+
+}
+
+
+Model_createNew("rxn1")
+Model_addComponent("A",1,"blue")
+Model_addComponent("B",10,"green")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A+ 2B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",(Util_random_1_to(5)+1)/200)
+Model_fixInfo("Overall")
+Model_select("A")
+Model_hideInfo("Temp,[C]")
+Model_setTemp(298)
+
+Expt_setNotify(notifyexpt)
+
+Graph_setImageSize(220,180)
+Graph_setBox(50,25,120,125)
+Graph_setTarget("mygraph")
+Graph_setKey("-")
+//Graph_setParameters("dotrendline=true")
+Graph_setParameters("xaxislabel='time<br>(sec)'")
+Graph_setParameters("dogridx=true|dogridy=true|ticwidth=1")
+
+Model_createNew("rxn2")
+Model_addComponent("A",1,"blue")
+Model_addComponent("B",10,"green")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation(ModelInfo["rxn1"].OverallEquation[0])
+Model_setRateLaw(ModelInfo["rxn1"].RateLaw[0])
+Model_setConstant("k",ModelInfo["rxn1"]["k"])
+Model_select("A")
+
+Model_setTemp(298)
+
+Analysis_setTarget("rxn1")
+
+Graph_setImageSize(220,180)
+Graph_setBox(50,25,120,125)
+Graph_setTarget("mygraphln")
+Graph_setKey("-")
+//Graph_setParameters("dotrendline=true")
+Graph_setYtransform("ln(y)")
+Graph_setParameters("xaxisaty=-2|ymin=-2|ymax=0")
+Graph_setParameters("xaxislabel='time<br>(sec)'")
+Graph_setParameters("dogridx=true|dogridy=true|ticwidth=1")
+
+
+
+
+Model_createNew("rxn3")
+Model_addComponent("A",1,"blue")
+Model_addComponent("B",10,"green")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation(ModelInfo["rxn1"].OverallEquation[0])
+Model_setRateLaw(ModelInfo["rxn1"].RateLaw[0])
+Model_setConstant("k",ModelInfo["rxn1"]["k"])
+Model_select("A")
+Model_setTemp(298)
+
+Analysis_setTarget("rxn1")
+
+Graph_setImageSize(220,180)
+Graph_setBox(50,25,120,125)
+Graph_setTarget("mygraphinv")
+Graph_setKey("-")
+//Graph_setParameters("dotrendline=true")
+Graph_setYtransform("1/y")
+Graph_setParameters("ymin=0|ymax=10")
+Graph_setParameters("yticminor=1|yticmajor=2|xaxislabel='time<br>(sec)'")
+Graph_setParameters("dogridx=true|dogridy=true|ticwidth=1")
+
+//Graph_setParameters("mouseon=false") //for debugging
+
+
+</script>
+
+
+<table width=600><tr><td>
+<script language=javascript>
+Model_show("rxn1")
+</script>
+</td><td>
+<script language=javascript>Analysis_show("rxn1",isqonly)</script>
+</td>
+</tr>
+</table>
+<br>
+<img name=mygraph src=gif/graph.gif width=220 height=180>
+<img name=mygraphln src=gif/graph.gif width=220 height=180>
+<img name=mygraphinv src=gif/graph.gif width=220 height=180>
+
+<script language=javascript>
+Graph_showAll()
+</script>
+
+<table width=600>
+<tr><td>
+<script language=javascript>
+//Data_show("rxn1")	
+//Data_show("rxn2")	
+//Data_show("rxn3")	
+
+
+autostart=true
+
+//overriding Q functions because they are dynamic
+
+function Q_getans(n){
+ if(n==1)return "The "+(isfirst?"middle":"third")+" graph most closely fits a straight line."
+ if(n==2)return "This is a second-order reaction."
+ if(n==3)return "Since [B] is relatively constant, we can write the rate law as \"rate = k'[A]\", where the \"pseudo-first-order rate constant\" is k', which equals k[B]."
+ if(n==4)return (isfirst?"On the graph of ln[X] vs. time, slope = -k'a":"On the graph of 1/[X] vs. time, slope = k'a")+", where \"a\" in this case is "+aval
+ if(n==5)return "For this reaction k' = "+(aval!=1?(isfirst?-slope:slope)+"/"+aval+" = ":"")+kpval+kunits+"."
+ if(n==6)return "For this reaction k' = k[B], or k=k'/[B]="+(kpval/cb)+" M-1 sec-1."
+}
+
+function Q_showans(n){
+ alert(Q_getans(n))
+}
+
+Q_ask("Which graph most closely fits a straight line?")
+Q_ask("What is the order of this reaction?")
+Q_ask("Why does the reaction behave as if it were first order?")
+Q_ask("How is the pseudo-first-order rate constant <i>k'</i> related to slope in this case?")
+Q_ask("What is the value of <i>k'</i> for this reaction?")
+Q_ask("What is the value of <i>k</i> for this reaction?")
+
+
+Explore_sayq("pseudo",isqonly)
+
+</script>
+</td></tr></table>
+
+</body>

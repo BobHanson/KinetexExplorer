@@ -1,0 +1,114 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Model_init(-1);
+>
+
+<script language=javascript>
+Model_createNew("rxn1")
+Model_addComponent("A",1,"blue")
+Model_addComponent("B",1,"green")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> I")
+Model_setRateLaw("k1[A][B]")
+Model_setConstant("k1",0.01)
+Model_setOverallEquation("I --> C")
+Model_setRateLaw("k2[I]")
+Model_setConstant("k2",1)
+Model_hideInfo("[C]<sub>o</sub>,[I]<sub>o</sub>")
+Model_fixInfo("Mechanism,Rate Law")
+//Model_select("A")
+
+Model_setTemp(298)
+Expt_setParameters("ismini=true")
+Analysis_setParameters("ismini=true")
+
+Data_setTarget("document.info.data")
+Data_setParameters("dXdt=true")
+
+Graph_setImageSize(600,180)
+Graph_setBox(50,25,500,125)
+Graph_setTarget("mygraph")
+Graph_setYmax(1.2)
+
+Analysis_hideInfo("rate")
+</script>
+
+
+<table cellspacing=0 cellpadding=0 xborder=3>
+<tr>
+<td colspan=3>
+<h4><font color=blue>What happens when there are two steps in a reaction?</font></h4>
+</td>
+</tr>
+
+<tr>
+<td>
+
+ <table xborder=2>
+<tr><td>
+<script language=javascript>Model_show("rxn1")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table xborder=1>
+  <tr>
+  <td valign=top><script language=javascript>Expt_show("rxn1")</script></td>
+  <td valign=top><script language=javascript>Analysis_show("rxn1")</script></td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+ </table>
+
+
+</td>
+<td valign=top>
+<font color=blue>Look carefully at this list, which summarizes the <i>changes</i> <br>
+in concentration of the various species in solution. <br>
+Notice that after a brief initial increase in [I], <br>
+the [I] becomes very low and steadily decreases.<br>
+Because of the presence of the intermediate in solution,<br>
+the rule "rate=-d[A]/dt=-d[B]/dt=d[C]/dt" is not <i>quite</i> true.<br>
+Still, after that initial phase, it's a pretty good approximation.<br>
+We call it the <b>steady-state approximation</b>.<br>
+See what happens when you switch the values of k1 and k2. <br>
+Our model only works when the first irreversible step is the slow one.
+
+</font>
+<form name=info>
+<textarea name=data rows=10 cols=55>
+</textarea></form>
+</td>
+</tr>
+
+<tr>
+<td colspan=3><img src=gif/graph.gif width=600 height=180 name=mygraph></td>
+</tr>
+</table>
+
+<script language=javascript>
+//can't show graph while in the table. MUST have a target for IE.
+Graph_show("rxn1")
+</script>
+
+</body>

@@ -1,0 +1,124 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Model_init()
+>
+
+<script language=javascript>
+Explore_sayh("explode")
+
+RXNFLASKGIF="flaskc.gif"
+Model_createNew("rxn1")
+Model_addComponent("A",1,"colorless")
+Model_addComponent("B",0.0001,"red")
+Model_setMechStep("A + B --> 2B","k1=0.5")
+Model_hideInfo("Temp")
+Model_fixInfo("Mech,Rate")
+Model_setTemp(298)
+function check(what){
+ if(what=="start")Rxn_setFlask("flaskc.gif")
+ if(what=="done")Rxn_setFlask("flaskc.gif")
+ if(what=="loop" && C["rxn1"]["B"]> C["rxn1"]["A"]){
+	Rxn_setFlask("flaskd.gif")
+ }
+ if(what=="loop" && C["rxn1"]["A"]<1e-4)Expt_stop()
+}
+
+function check2(n){
+ Rxn_setFlask(DataInfo["rxn1"].Data[n][0]<DataInfo["rxn1"].Data[n][1]?"flaskd.gif":"flaskc.gif")
+}
+
+Expt_setEndTime(100)
+Expt_setParameters("ismini=true")
+Expt_setNotify(check)
+
+Analysis_setNotify(check2)
+
+//Data_setTarget("document.info.data")
+//Data_setParameters("dXdt=true")
+
+Graph_setBox(50,30,450,125)
+Graph_setTarget("mygraph")
+Graph_setYmax(1.2)
+
+Analysis_setTarget()
+
+</script>
+
+
+<table xborder=3>
+
+<tr>
+<td>
+
+ <table xborder=2>
+<tr><td>
+<script language=javascript>Model_show("rxn1")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table xborder=1>
+  <tr>
+  <td valign=top><script language=javascript>Expt_show("rxn1")</script></td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+ </table>
+
+
+</td>
+<td valign=top>
+
+  <table xborder=1>
+  <tr>
+  <td width=100 valign=top><script language=javascript>Rxn_show("rxn1")</script></td>
+  <td width=200>
+	<h4><font color=blue>
+
+Before pressing start, look closely at the mechanism. 
+What is the effect of having B both as a reactant and a product of the same reaction?
+
+</font></h4>
+  </td>
+  </tr>
+  <tr>
+  <td colspan=2 valign=top><script language=javascript>Data_show("rxn1")</script></td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+<tr>
+<td colspan=3><img src=gif/graph.gif width=600 height=180 name=mygraph></td>
+</tr>
+</table>
+
+<script language=javascript>
+//can't show graph while in the table. MUST have a target for IE.
+Explore_sayq()
+Graph_show("rxn1")
+</script>
+
+</body>

@@ -1,0 +1,704 @@
+<HTML>
+<HEAD>
+<title>Mechanism-Based Kinetics Simulator</title>
+
+<SCRIPT LANGUAGE="JavaScript" src=divgraph.js></script>
+<SCRIPT LANGUAGE="JavaScript" src=utility.js></script>
+<SCRIPT LANGUAGE="JavaScript" src=graphing.js></script>
+<script language=javascript src=data.js></script>
+<SCRIPT LANGUAGE="JavaScript">
+if(top==self)document.location="index.htm"
+/*
+ bob hanson hansonr@stolaf.edu 5/2/98
+ revised 8/13/00 to add gnuplot
+ revised 6/29/01 to add divgraph
+ revised 5/8/02 to add constant values, jstep
+ revised 10/8/02 for IE5/mac compatibility "thedata"
+*/
+
+istest=false
+doloadit=true
+digits="0123456789"
+oldtoken=""
+
+var islocal=(document.location.href.toUpperCase().indexOf("FILE:/")==0)
+islocal=false //turns off personal data option
+dataserver=""  //turns off PNG/GIF option
+
+isfilelist=false
+defdisplaytype=0
+btnlock=false
+havedata=false
+going=false
+niter=0
+nstep=0
+pstart=0
+n__=0
+iter=0
+
+function resetarrays(){
+R=new Array()
+P=new Array()
+k=new Array()
+dx=new Array()
+dRP=new Array()
+C=new Array("x_")
+T=new Array("")
+dT=new Array()
+nT=new Array()
+ST=new Array()
+isConst=new Array()
+C["x_"]=1
+maxc=-1e99
+mainvlist="\n"
+Vlist=new Array()
+n__=0
+nv=0
+neq=-1
+iter=0
+ncount=1
+dt=1
+}resetarrays()
+
+CH=new Array("-1","-2","-3","-4","-5","-6","-7","-8","-9")
+sdash="+++++++++++++++++++++++++"
+snull="                         "
+slistold=""
+filename=""
+
+function newrow()
+{
+ neq++
+ R[neq]=new Array("x_","x_","x_",0)
+ P[neq]=new Array("x_","x_","x_",0)
+ k[neq]=new Array(.1,.1)
+ dx[neq]=""
+}
+
+function parseinfo(dojump)
+{
+ usr.datarates.value=""
+ slist=usr.datarxn.value
+ slist=slist.replace(/\</," <").replace(/\>/,"> ").replace(/\-\-\>/," -->")
+ slist=clean(slist)
+ if (slist==slistold)return
+ slistold=slist
+ resetarrays()
+ var V=slist.split(";")
+ slist=V.join(" ; ")
+ nthisrow=0
+ while(slist.length)dotoken(gettoken())
+ neq++
+ usr.datarxn.value=getallinfo()
+ for(var i=0;i<nv;i++)maxc=Math.max(C[Vlist[i]],maxc)
+ if(dojump)dogoto("#conc")
+ listconc()
+ for(i=1;i<Math.min(nv+1,usr.swherex.options.length);i++)
+ {
+  usr.swherex.options[i].text=Vlist[i-1]
+ }
+ havedata=true
+}
+
+function dotoken(stoken)
+{
+ if(stoken=="" || stoken==" " || stoken=="+")return 1
+ var ch=stoken.charAt(0)
+ if(ch=="/")
+ {
+  var i=slist.indexOf(";")
+  if(i>=0)slist=slist.substring(i+2,slist.length)
+  return 0
+ }
+ if(stoken==";")return nthisrow=0
+ if(ch=="k")
+ {
+  var V=stoken.split("=")
+  var j=(stoken.substring(1,2)=="-"?1:0)
+  var i=eval(V[0].substring(1+j,V[0].length))-1
+  k[neq][j]=eval(V[1]) 
+  return 1
+ }
+ if(ch=="-")
+ {
+  dx[neq]=stoken
+  k[neq][1]=0
+  return 1
+ }
+ if(ch=="<")
+ {
+  dx[neq]=stoken
+  return 1
+ }
+ if(ch=="[")
+ {
+  var V=stoken.split("=")
+  var s=V[0].substring(1,V[0].length-1)
+  C[s]=parseFloat(V[1])
+  isConst[s]=(V[1].indexOf("(constant)")>=0)
+  return 1
+ }
+ if(digits.indexOf(ch)>0)
+ {
+  ncount=eval(ch)
+  if(stoken.length>1)
+  {
+   slist=stoken.substring(1,stoken.length) + " " + slist
+  }
+  return 0
+ }
+ if(!nthisrow)newrow()
+ nthisrow=true
+ if (dx[neq].length)
+ {
+  P[neq][3]=Math.min(P[neq][3],2)
+  P[neq][P[neq][3]]=stoken
+  P[neq][3]++
+ }else{
+  R[neq][3]=Math.min(R[neq][3],2)
+  R[neq][R[neq][3]]=stoken
+  R[neq][3]++
+ }
+ for(var i=1;i<ncount;i++)slist=stoken + " " + slist
+ ncount=1
+ C[stoken]=0
+ isConst[stoken]=false
+ var s=stoken+"\n"
+ if(mainvlist.indexOf("\n"+s)<0)
+ {
+  mainvlist+=s
+  Vlist[nv]=stoken
+  T[nv]=new Array()
+  dT[nv]=new Array()
+  T[nv][0]=0
+  dT[nv][0]=0
+  nv++
+ }
+ return 1
+}
+
+function gettoken()
+{
+ var stoken=""
+ var i=slist.indexOf(" ")
+ if(i<0)
+ {
+  stoken=slist
+  slist=""
+  return stoken
+ }
+ stoken=clean(slist.substring(0,i))
+ slist=slist.substring(i+1,slist.length)
+ return stoken
+}
+
+function getallinfo()
+{
+ var s=""
+ for(var i=0;i<neq;i++)
+ {
+  s+="   "+getstoich(i,false)
+  s+="\t k"+(i+1)+"="+k[i][0]
+  if(k[i][1]!=0)s+="  k-"+(i+1)+"="+k[i][1]
+  s+="\n"
+ }
+ if(neq)s+="//-----------------------------------\n// "+getstoich(-1,false) + "  overall\n\n"
+ getstoich(-1,true)
+ for(var i=0;i<nv;i++)
+ {
+  var sv=Vlist[i]
+  if(C[sv]<0)C[sv]=-C[sv]
+  if(C[sv]!=0 || ST[sv]<0)s+="["+sv+"]="+C[sv]+(isConst[sv]?"(constant)":"")+"\n"
+ }
+ return s
+}
+function getstoich(iwhich,iscatalyst)
+{
+ var n0=(iwhich<0?0:iwhich)
+ var n1=(iwhich<0?neq:iwhich+1)
+ var isirrev=false
+ ST=new Array()
+ ST["x_"]=0
+ for(i=0;i<nv;i++)
+ {
+  ST[Vlist[i]]=0
+ }
+ for(var i=n0;i<n1;i++)
+ { 
+  isirrev=(isirrev || k[i][1]==0)
+  for(var j=0;j<3;j++)
+  {
+   ST[R[i][j]]+=(iwhich<0?-1:10)
+   if(!iscatalyst || ST[P[i][j]]==0)ST[P[i][j]]+=1
+  }
+ }
+ var sr=""
+ var sl=""
+ for(i=0;i<nv;i++)
+ {
+  var e=ST[Vlist[i]]
+  var nl=(iwhich<0?e:-Math.floor(e/10))
+  var nr=(iwhich<0?e:e % 10)
+  if(nl<0)
+  {
+   sl=sl+"+  "+(nl<-1?(-nl)+" ":"")+Vlist[i]+"  "
+   if(iscatalyst && C[Vlist[i]]==0)C[Vlist[i]]=1
+  }
+  if(nr>0)sr=sr+"+  "+(nr>1?nr+" ":"")+Vlist[i]+"  "
+ }
+ return sl.substring(3,sl.length)+(isirrev?"-->  ":"<==>  ")+sr.substring(3,sr.length)
+}
+
+function dorun(ifirst)
+{
+ if(!havedata){ifirst=0;parseinfo(true)}
+ if(neq==0){dogoto("#mech");return alert("No mechanism!")}
+ for(var i=0;i<neq;i++)
+ {
+  dx[i]="dt*("+k[i][0]+"*C['"+R[i][0]+"']*C['"+R[i][1]+"']*C['"+R[i][2]+  "']-"  +k[i][1]+"*C['"+P[i][0]+"']*C['"+P[i][1]+"']*C['"+P[i][2]+"'])"
+ }
+ niter=Math.max(Math.round(eval(usr.tniter.value)),1)
+ nstep=Math.max(Math.round(eval(usr.tnstep.value)),1)
+ iter=ifirst
+ going=true
+ if(ifirst==0)
+ {
+  for(var i=0;i<nv;i++)T[i][0]=C[Vlist[i]]
+  addpoints()
+  doloop(false)
+  for(var i=0;i<nv;i++)dT[i][0]=T[i][1]-T[i][0]
+  iter=0
+  n__=0
+  listrate()
+  n__=1
+ }
+ doloop(true)
+ return 1
+}
+function doloop(docontinue)
+{
+ if (!going) return 0
+ for(var i=0;i<neq;i++)
+ {
+  C["x_"]=1
+  var e=eval(dx[i])
+  for(var j=0;j<3;j++)
+  {
+   if(!isConst[R[i][j]])C[R[i][j]]-=e
+   if(!isConst[P[i][j]])C[P[i][j]]+=e
+  }
+ }
+ iter++
+ if (!listconc()) return 0
+ if ((iter % nstep)==0)addpoints()
+ for(var i=0;i<nv;i++)T[i][n__]=C[Vlist[i]]
+ if((iter % niter)==0)return going=false
+ return (docontinue?setTimeout('doloop(true)',1):0)
+}
+
+function addpoints()
+{
+ for(var i=0;i<nv;i++)
+ {
+  var e=C[Vlist[i]]
+  dT[i][n__]=e-T[i][n__]
+  T[i][n__]=e
+ }
+ nT[n__]=iter
+ if(iter)listrate()
+ n__++
+}
+
+function listconc()
+{
+ var s=""
+ for(var i=0;i<nv;i++){
+	if(C[Vlist[i]]<0){
+		alert("d["+Vlist[i]+"]/dt has gone too negative relative to ["+Vlist[i]+"] to continue the calculation.")
+		return false
+	}
+	s+=addconc(Vlist[i])
+ }
+ s+=iter + " seconds " + (n__+1) + " point"+(n__==0?"":"s")
+ usr.dataconc.value=s
+ return true
+}
+
+function listrate()
+{
+ var s=""
+ for(var i=0;i<nv;i++)s+=addrate(i)
+ usr.datarates.value=s
+}
+function addconc(c)
+{
+ var e=C[c]
+ var n=Math.round(e/maxc*25)
+ return "["+c+"]\t"+sdash.substring(0,n)+snull.substring(0,25-n)+" "+e+"\n"
+}
+function addrate(i)
+{
+ var r=dT[i][n__]
+ return "d["+Vlist[i]+"]/dt\t "+(r>=0?"+":"")+r+"\n"
+}
+function loadfilelist(mode)
+{
+ if(mode==0) return waitforload("loadfilelist(1)",parent.CALC_kdata,"./data") 
+ var slist="Mark the file you want to load\n by placing an 'x' after its name\n and pressing 'OK'\n"
+ for(var i=1;i<parent.CALC_kdata.document.links.length;i++)
+ {
+  var s=parent.CALC_kdata.document.links[i].href
+  s=s.substring(s.lastIndexOf("/")+1,s.length)+"----------"
+  slist+="./data/"+s.substring(0,12)+"\n"
+ }
+ usr.datarxn.value=slist
+ isfilelist=true
+ return 1
+}
+
+function showlist(slist,addlisting)
+{
+ var s=slist
+ s=strsub(s,"=?=","=")
+ s=strsub(s,"=?","=")
+ s=strsub(s,";","\n")
+ s=strsub(s,"\r","\n")
+ s=strsub(s,"\n\n","\n")
+ s=strsub(s,"'","")
+ while(s.indexOf("\n")==0)s=s.substring(1,s.length)
+ s+="//BOUNDS=("+BOUNDS+")\n"
+ if(addlisting && usr.optlist.checked)s+=dolist(0)
+ return s
+}
+
+function updatemainvlist()
+{
+ vlist=";"+usr.datavar.value
+ var s=vlist
+ var i=s.indexOf("//BOUNDS=")
+ BOUNDS=new Array(-1E199,1E199)
+ if(i>=0)eval("BOUNDS=new Array"+s.substring(i+9,s.length))
+ vlist=strsub(vlist,"\r","\n")
+ vlist=strsub(vlist,"\n",";")
+ vlist=mathclean(vlist)
+ vlist=strsub(vlist,";;",";")+"//"
+ vlist=vlist.substring(0,vlist.indexOf("//"))
+ if(istest)alert(vlist)
+ var Av=vlist.split(";")
+ for(var i=0;i<Av.length;i++)
+ {
+  var sa=Av[i]
+  if(sa.indexOf("?")<0)
+  {
+   if(sa.indexOf("=")>0 && sa.indexOf("=")<sa.length-1)
+   {
+    var AA=sa.split("=")
+    mainvlist=updatevlist(mainvlist,AA[0],AA[1],0)
+   }
+  }
+ }
+ eval(mainvlist)
+ return 0
+}
+function updatevlist(slist,svar,sval,usemain)
+{
+ var s=";"+svar+"="
+ var sr=(usemain?varvalue(mainvlist,s):sval)
+ if(usemain && sr.length && paramlist.indexOf(s)>=0)sr=(usemain==-2?"":sr+"=")
+ var sl=slist
+ var i=sl.lastIndexOf(s)
+ if (i<0)
+ {
+  sl+=s.substring(1,s.length)+sr+";"
+  return sl
+ }
+ sl=sl.substring(0,i)+s+sr+sl.substring(sl.indexOf(";",i+1),sl.length)
+ return sl
+}
+
+function doloadbody(mode)
+{
+ usr=document.info
+ if(!doloadit)return
+  usr.sdtype.selectedIndex=defdisplaytype
+  parseinfo()
+}
+
+function doBtn(sname)
+{
+ if(going){going=false;return 0}//alert("Halted")}
+ if(isfilelist && sname=="blur") return 0
+ if(isfilelist || sname=="mech") return doselect("sdata")
+ if(sname=="check") {parseinfo();return dogoto("#thedata")}
+ if(sname=="rxnOK") {parseinfo();return dogoto("#conc")}
+ if(sname=="reset") {slistold="";return parseinfo()}
+ if(sname=="blur") return parseinfo()
+ if(sname=="go") return dorun(iter)
+ if(sname=="gonext") return dogoto("#graph")
+ if(sname=="plot") return dograph(0)
+ if(sname=="test") return dotest(usr.itest.value)
+ return 0
+}
+function doselect(sname)
+{
+ eval("var c=usr."+sname)
+ var s=c[c.selectedIndex].value
+ if(sname=="sdata")
+ {
+  dogoto("#data")
+  if(s=="FILE")
+  {
+   if(!isfilelist) return loadfilelist(0)
+   s=usr.datarxn.value
+   var i=s.indexOf("-x")
+   if(i<0){alert("File has not been selected.");loadfilelist(0);dogoto("#data");return 0}
+   s=s.substring(0,i)
+   s=s.substring(s.lastIndexOf("./"),s.length)
+   filename=s.substring(0,s.indexOf("-"))
+   usr.sdata.options[usr.sdata.selectedIndex].text=filename+" (click 'OK' for file list)"
+   isfilelist=0
+   return waitforload("dodata(1)",parent.CALC_kdata,filename)
+  }
+  isfilelist=0
+  filename=s
+  return waitforload("dodata(0)",parent.CALC_kdata,(islocal?"./data/":"")+filename)
+ }
+ if(sname=="squiz")
+ {
+  isfilelist=0
+  return waitforload("dodata(0)",parent.CALC_kdata,(islocal?"./data/":"")+filename)
+ }
+ return 0
+}
+
+
+function dodata(wasfilelist)
+{
+ if(btnlock)return
+ sinfo=""
+ sdefs=""
+ var c=parent.CALC_kdata.document.forms
+ if (c.length)
+ {  
+  var sa=findvalue(c[0],"action")
+  isquiz=(sa.length>0)
+  if(isquiz)eval(sa)
+  ans=strsub(findvalue(c[0],"sans"),";","\n")
+  hint=strsub(findvalue(c[0],"shint"),";","\n")
+  if(isfilelist || !(filename=="blank.htm") ||prompt("Erase data?","yes")=="yes")usr.datarxn.value=findvalue(c[0],"datarxn")
+  stitle=""
+  if(!isquiz)
+  {
+   stitle=findvalue(c[0],"stitle")
+   if (stitle=="")stitle=gettextof("sdata")
+   if(stitle.indexOf("(click")>=0)stitle=stitle.substring(0,stitle.indexOf("(click"))
+  }
+  var sinfo=strsub(findvalue(c[0],"sinfo"),"|","\n")
+  if(sinfo=="")sinfo=findvalue(c[0],"windataheader")
+  var sdefs=findvalue(c[0],"sdefs")
+  if(sdefs!="")
+  {
+   sdefs+=";"
+   if(mainvlist.indexOf(sdefs)<0)mainvlist+=";"+sdefs
+   sdefs=strsub(sdefs,"'","")
+   sdefs=strsub(sdefs,"=;",";")
+   eval(sdefs)
+  }
+  usr.tstitle.value=stitle
+ }
+ doBtn("reset")
+ dogoto("#data")
+ if(sinfo+sdefs!="")alert("\n\n"+stitle+"\n\n"+sinfo+"\n\n"+sdefs)
+ btnlock=true
+ setTimeout('btnlock=false',200)
+}
+function varvalue(varlist,vdef)//vdef form is ";variable="
+{
+ var i=varlist.indexOf(vdef)
+ if(i<0)return "?"
+ return varlist.substring(i+vdef.length,varlist.indexOf(";",i+1))
+}
+
+
+function getinfo()
+{
+ sflags=""
+ for(var i=0;i<usr.elements.length;i++)
+ {
+  var e=usr.elements[i]
+  var s=e.name
+  var sreal=s.substring(1,s.length)
+  if(s.charAt(0)=="t")eval(sreal+"='"+e.value+"'")
+  if(s.charAt(0)=="s")eval(sreal+"='"+getselectof(s)+"'")
+  if(s.charAt(0)=="y" && e.checked)sflags+=" "+e.value
+  if(s.charAt(0)=="n" && !e.checked)sflags+=" "+e.value
+ }
+ if(usr.oxauto.checked)xlimits="from auto"
+ if(usr.oyauto.checked)ylimits="from auto"
+ isdt=(plot.charAt(0)=="d")
+ isvsc=(plot.indexOf("dcvsc")==0)
+ isln=(plot.charAt(0)=="l")
+ is1_c=(plot.charAt(0)=="1")
+ vscn=(plot.charAt(5)=="2"?2:1)
+ return true
+}
+
+
+</SCRIPT>
+</HEAD>
+
+<body bgcolor=#FFFFFF onload='doloadbody(0)'><form name=info>
+<a name="top">
+<center><h3>Mechanism-Based Kinetics Simulator</h3></center>
+</a>
+With this web page you can simulate the kinetics of a reaction based on its mechanism.
+The idea is to:
+<ul>
+<li>write a <a href=#mechanism>mechanism</a> and, based on that, 
+<li>follow the course of <a href=#conc>concentrations</a> or
+<a href=#rates>rates of change</a> in concentration 
+of reactants, catalysts, intermediates, and products over time. 
+</ul>
+In addition, you can <a href=#graph>graph</a> many different relationships related to the reaction either for one species or for the whole set, including:
+
+<ul>
+<li>[X], ln[X], 1/[X], or d[X]/dt vs. time, and
+<li>d[X]/dt vs. time, [X], or [X]<sup>2</sup>
+</ul>
+<p>Questions to consider include:
+<ol>
+<li>How do the individual concentrations change over the course of the reaction? Which ones rise and which ones fall? Which ones start small, rise, then fall again?
+<li>Are the individual changes in concentration (d[X]/dt) related? How so? Are these exact, or only approximate correlations? Why would that be?
+<li>Is there a rate "constant" for the reaction? If so, how would you get its value?
+</ol>
+
+Enjoy!
+<hr>
+
+<a name="mechanism">
+<strong>Proposed Mechanism and Starting Conditions</strong><p>
+<p>
+You can either select from a predefined mechanism or write your own. 
+At a minimum, indicate "&lt;==&gt;" for reversible steps 
+and <span>"---&gt;"</span> for irreversible steps. Clicking on 'check' will 
+fill in the rest of the needed values, at least with default values. 
+Blanks ARE important and represent the end of a formula. 
+So if you mean "Fe+2 <small>+</small> V+2" don't write "Fe+2+V+2". 
+The program isn't THAT smart! 
+Note that rate constants (k<sub>n</sub> and k<sub>-n</sub>) should be 
+between 0 and 1 here, as 'dt' is 1 second for this simulation, and larger numbers
+will result in too fast of a reaction. To indicate that a concentration should
+remain constant, add "(constant)" immediately after its value.
+</a>
+<p>
+<a name="thedata">
+<script language=javascript>
+
+ tr="<tr>"
+ s="<table>"
+ s+=tr+"<td>Predefined Mechanisms:<td>"
+ s+=tr+"<td>"+getdata()
+ s+=tablebtn("mech","OK",0)
+ s+=tr+"<td nowrap valign=top>Proposed Mechanism:"
+ s+=" "+tablebtn("check","Check",0)
+ s+=" "+tablebtn("rxnOK","Next...",0)
+ s+=tr+"<td rowspan=9 valign=top><textarea bgcolor=#FFFFFF  rows=10 cols=60 name=datarxn onBlur=doBtn('blur')>"
+ s+="A + B --> C  k1=0.02\n"
+ s+="[A]=0.1,[B]=1\n"
+ s+="</textarea bgcolor=#FFFFFF >"
+ s+="<td>"
+ s+="</table>"
+ document.write(s)
+</script>
+</a>
+<hr>
+
+<a name="conc">
+<strong>Concentrations:</strong><p>
+<p></a>
+<script language=javascript>
+s="<table>"
+s+=tr
+s+="<td nowrap>"+tableinput(" step:","nstep",1,6,0)
+s+=tableinput(" end:","niter",100,6,0)
+s+=" "+tablebtn("reset","Reset",0)
+s+=" "+tablebtn("go","Continue",0)
+s+=" "+tablebtn("stop","Stop",0)
+s+=" "+tablebtn("gonext","Next...",0)
+s+=tr+"<td rowspan=9 valign=top><textarea bgcolor=#FFFFFF  rows=5 cols=60 name=dataconc>"
+s+="[A]=1\n[E]=.01\n[AE]=0\n[B]=0\n</textarea bgcolor=#FFFFFF >"
+s+="</table></a>"
+document.write(s)
+</script>
+<hr>
+
+<a name="rates">
+<strong>Rates of Change:</strong><p>
+<p></a>
+<script language=javascript>
+s="<table>"
+s+=tr+"<td rowspan=9 valign=top><textarea bgcolor=#FFFFFF  rows=5 cols=60 name=datarates>"
+s+="</textarea bgcolor=#FFFFFF >"
+s+="</table></a>"
+document.write(s)
+</script>
+<hr>
+
+<a name=graph>
+<strong>Graphing Options</strong><p>
+<script language=javascript>
+var s="<table>"
+s+=tr+tableinput("Main Title","stitle","",20,true)
+s+="<td colspan=2>"
+document.write(s)
+
+s='tableselect("Output:","dtype",defdisplaytype,"js","JavaScript","csv","Comma-Separated Values"'
+if(isstolaf)s+=',"png","PNG","postscript","PostScript","table","Gnuplot Table"'
+if(dataserver.length)s+=',"wdt-r","application/x-windata (remote)","wdt-l","use application/x-windata (local)"'
+s+=')'
+s=eval(s)
+
+
+s+=tr+tableinput("Subtitle","stitle1","",20,true)
+//s+=tablecheck("x-axis tics UP","xtics","XTICSUP",0,"y")
+s+=tablecheck("x-axis where Y=0","xaxis0","XAXIS0",1,"y")
+s+=tr+tableinput("X-Axis Label","xlabel","",20,true)
+s+=tablecheck("x-axis numbers","xaxisnum","NOXNUMS",1,"n")
+s+=tablecheck("y-axis numbers","yaxisnum","NOYNUMS",1,"n")
+s+=tr+tableinput("Y-Axis Label","ylabel","",20,true)
+s+=tablecheck("add trend line","trendline","DOTREND",0,"y")
+s+=tablecheck("connect points","connect","ALLLINES",0,"y")
+s+=tr+tableinput("X-Range "+tablecheck("auto","xauto","",1,"o"),"xlimits",xlimits,20,true)
+s+="<td colspan=2>"+tableselect("Plot:","plot",0,
+ "cvst","[X] vs. time",
+ "lncvst","ln[X] vs. time",
+ "1_cvst","1/[X] vs. time",
+ "dcvst","d[X]/dt vs. time",
+ "dcvsc","d[X]/dt vs. [X]",
+ "dcvsc2","d[X]/dt vs. [X]^2"
+ )
+s+=tableselect("where X=","wherex",0,
+ "all","all...",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","")
+s+=tr+tableinput("Y-Range "+tablecheck("auto","yauto","",1,"o"),"ylimits",ylimits,20,true)
+s+="<td colspan=2>"
+s+=tableinput("Width","swidth","500",3,false)
+s+=tableinput("Height","sheight","300",3,false)
+s+=tableinput("Start (sec):","pstart",0,3,0)
+s+=" "+tablebtn("plot","Plot",0)
+s+="</table>"
+//s+="<br>Test Evaluation:<input type=text name=itest size=35 value=''>"+tablebtn("test","OK",0)
+document.write(s)
+s=""
+</script></form>
+<a name=end>&nbsp;</a>
+</body></HTML>

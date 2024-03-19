@@ -1,0 +1,80 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Simulate_init(1);
+>
+<script language=javascript>
+Simulate_sayh("t12",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("A",1,"blue")
+Model_addComponent("B",3,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> C||2A + B --> C||A + 2B --> C")
+Model_setRateLaw("k[A]")
+aval=-ModelInfo["rxn1"].Component[0].coeff
+//alert(aval+0)
+Model_setConstant("k",(Util_random_1_to(5)+1)/10/aval)
+Model_setTemp(298)
+Model_hideInfo("Temp,k")
+Model_select("A")
+
+kval=ModelInfo["rxn1"]["k"]
+aval=-ModelInfo["rxn1"].Component[0].coeff
+t12=Util_roundoff(Math.log(2)/kval/aval,1)
+
+Expt_setEndTime(20)
+Expt_setParameters("ismini=true")
+Model_select("A")
+Data_setRows(7)
+Graph_setYmax(1)
+Graph_setBox(0,35,450,180)
+//Graph_setImageSize(500,150)
+Graph_setParameters("xticmajor=2|xticminor=0.5|yticminor=0.05|yticmajor=0.2|xaxislabel='time (sec)'|dogridx=true|dogridy=true")
+Graph_setTarget("rxn1graph")
+Graph_setKey("-")
+</script>
+<table width=600>
+<tr><td>
+<table width=700>
+<tr>
+<td width=200><script language=javascript>Model_show("rxn1")</script>
+<br>
+<script language=javascript>Expt_show("rxn1")</script>
+</td>
+<td width=500>
+<script language=javascript>Data_show("rxn1")</script>
+</td></tr>
+<tr>
+<td colspan=2><img src=gif/graph.gif width=600 height=250 name=rxn1graph></td>
+</tr>
+</table>
+</td></tr>
+<tr><td>
+<script language=javascript>
+Q_ask("What is the first half-life, <i>t</i><sub>1/2</sub>, for this reaction?","The half-life of this reaction is "+t12+" seconds.")
+Q_ask("Look for multiple half-lives. Are they evenly spaced?","If this is a first-order reaction, then it should be half completed by "+t12+" seconds, and there should only be 1/4 the original amount after "+(t12*2)+" seconds.")
+Q_ask("What is the value of the rate constant for this reaction?","For this reaction k = ln(2)/"+(aval!=1?"("+t12+"*"+aval+")":t12)+" = "+kval+" sec-1."+(aval!=1?"\n\n(Note that the coefficient of A in the overall chemical equation is "+aval+" in this case,\nso the value of k is smaller than it otherwise would be.":""))
+
+Simulate_sayq("t12",isqonly)
+</script></td>
+</td></tr>
+</table>
+<script language=javascript>Graph_show("rxn1",true)</script>
+</body>

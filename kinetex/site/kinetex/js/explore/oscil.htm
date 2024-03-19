@@ -1,0 +1,132 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Model_init()
+>
+
+<script language=javascript>
+Explore_sayh("oscil")
+Model_createNew("rxn1")
+Model_addComponent("A",1,"colorless")
+Model_addComponent("X",1,"red")
+Model_addComponent("Y",1,"black")
+Model_addComponent("B",1,"colorless")
+Model_setMechStep("A + X --> 2X","k1=1")
+Model_setMechStep("X + Y --> 2Y","k2=1")
+Model_setMechStep("Y --> B","k3=.3")
+Model_fixInfo("Mech,Rate")
+Model_setConstant("A",1)
+Model_setConstant("B",1)
+Model_setTemp(298)
+Expt_setEndTime(20)
+Expt_setParameters("ismini=true")
+Analysis_setTarget()
+
+/* Lotka mechanims:
+   A  +  X  -->  2 X  	 k1=0.5
+   X  +  Y  -->  2 Y  	 k2=0.5
+   Y  -->  B  	         k3=0.1
+//-----------------------------------
+// A  -->  B    overall
+
+[A]=0.1(constant)
+[X]=0.1
+[Y]=0.1
+[B]=0.1(constant)
+
+*/
+
+
+//Data_setTarget("document.info.data")
+//Data_setParameters("dXdt=true")
+
+Graph_setImageSize(600,180)
+Graph_setBox(50,30,450,125)
+Graph_setTarget("mygraph")
+Graph_setYmax(2.6)
+
+Analysis_hideInfo("rate")
+</script>
+
+
+<table xborder=3>
+
+<tr>
+<td>
+
+ <table xborder=2>
+<tr><td>
+<script language=javascript>Model_show("rxn1")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table xborder=1>
+  <tr>
+  <td valign=top><script language=javascript>Expt_show("rxn1")</script></td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+ </table>
+
+
+</td>
+<td valign=top>
+
+  <table xborder=1>
+  <tr>
+  <td width=100 valign=top><script language=javascript>Rxn_show("rxn1")</script></td>
+  <td width=200>
+	<h4><font color=blue>
+
+The Lottka-Volterra model involves two
+reactions with positive feedback. Think about it before
+you press Start.
+In order to drive the oscillations, we also must
+set the concentrations of both A and B constant.
+(Perhaps this is a saturated solution of both A and B.)
+Try changing the various values to see what the effect is.
+Can you explain the effect?
+</font></h4>
+  </td>
+  </tr>
+  <tr>
+  <td colspan=2 valign=top><script language=javascript>Data_show("rxn1")</script></td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+<tr>
+<td colspan=3><img src=gif/graph.gif width=600 height=180 name=mygraph></td>
+</tr>
+</table>
+
+<script language=javascript>
+//can't show graph while in the table. MUST have a target for IE.
+Explore_sayq()
+Graph_show("rxn1")
+</script>
+
+</body>

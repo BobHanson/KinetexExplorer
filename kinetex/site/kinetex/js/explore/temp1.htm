@@ -1,0 +1,82 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Model_init();
+>
+<script language=javascript>
+if(top==self)location="temp.htm"
+
+Explore_sayh("temp",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("A",2,"blue")
+Model_addComponent("B",1,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("2A + B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.3)
+Model_setTemp(200)
+Model_hideInfo("[C]")
+Model_select("C")
+Expt_setEndTime(20)
+Data_setRows(7)
+Graph_setYmax(1)
+Graph_setImageSize(400,180)
+Graph_setBox(0,35,280,100)
+Graph_setParameters("yticminor=0.05|yticmajor=0.2|xaxislabel='time (sec)'")
+Graph_setTarget("rxn1graph")
+Graph_setKey("-")
+//Graph_setParameters("nomouse=true")
+
+
+function adddata(){
+ parent.fraTD.adddata(ModelInfo["rxn1"].temp,ModelInfo["rxn1"].k)
+}
+
+</script>
+<table width=500>
+<tr><td>
+<table width=500>
+<tr>
+<td width=200><script language=javascript>Model_show("rxn1")</script>
+<a href=javascript:adddata()>add data</a>
+<p>
+</td>
+<td width=300>
+
+<script language=javascript>Analysis_show("rxn1")</script>
+
+<br>
+</td>
+</tr>
+<tr>
+<td colspan=2><img src=gif/graph.gif width=400 height=170 name=rxn1graph></td>
+</tr>
+<tr>
+</tr>
+</table>
+</td></tr>
+<tr><td>
+<script language=javascript>
+Explore_sayq("temp",isqonly)
+</script></td>
+</td></tr>
+</table>
+<script language=javascript>Graph_show("rxn1",true)</script>
+</body>

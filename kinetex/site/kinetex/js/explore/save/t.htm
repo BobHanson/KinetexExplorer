@@ -1,0 +1,98 @@
+<html>
+<head>
+<title>Example i6: data plotter with title-based feedback</title>
+<script type="text/javascript" src=divs.js></script>
+<script type="text/javascript" src=../common/divgraph.js></script>
+<script type="text/javascript" src=model.js></script>
+<script type="text/javascript" src=explore.js></script>
+<script type="text/javascript" src=util.js></script>
+<script type="text/javascript" src=debug.js></script>
+
+<script type="text/javascript" src=expt.js></script>
+<script type="text/javascript" src=rxn.js></script>
+<script type="text/javascript" src=data.js></script>
+<script type="text/javascript" src=graph.js></script>
+<script type="text/javascript" src=analysis.js></script>
+<script type="text/javascript">
+
+
+Model_createNew("test4")
+Model_addComponent("A",1,"green")
+Model_addComponent("B",2,"")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.2)
+Model_setTemp(130)
+Graph_setTarget('')
+Graph_setTitle('test4')
+
+
+function check(which) {
+    var s = "No, that's not it!";
+    if (GR.L.r2 > 0.99) {
+        if (which == "i5") {
+            s = "Very good! Yes, the data are 2nd order kinetics, so a plot of 1/[X] vs. time does the trick.";
+        }
+        if (which == "i6") {
+            s = "Very good! " + (Info.xvar == "T_Kelvin" &&
+                Info.yvar == "k" && Info.datatransform == "ln(y) vs. 1/x" ? "Yes, by plotting ln(k) vs. 1/T(Kelvin) we can get the activation energy, because the slope is -Ea/R. In this case the slope is " + GR.L.m + " so Ea is " + GRroundoff(-GR.L.m * 0.0083145, 1) + " kJ/mol.K." : "");
+        }
+    }
+    GRalert(s);
+}
+
+function initialize() {
+    tmax = 50;
+    delay = 1000;
+    t = 0;
+    A = 1;
+    B = 0;
+    K = 1;
+    r = 0.01;
+    Q = B / A;
+    k2 = r / (K + 1);
+    k1 = K * r / (K + 1);
+    GRopengraphwindow(600, 300);
+    Info = new Array();
+    Info.graphwidth = 500;
+    Info.xmin = 0;
+    Info.ymin = 0;
+    Info.xmax = tmax;
+    Info.ymax = A + B;
+    Info.xaxislabel = "time";
+    Info.yaxislabel = "concentration";
+    Info.maxaddpoints = tmax * 2;
+    Info.ptsize = 5;
+    Data = new Array([t, A, "red"], [t, B, "blue"]);
+    GRdrawgraph("", Data, "", Info);
+    GRclosegraphdocument();
+    react()
+}
+
+
+function react() {
+    t++;
+    dA = -k1 * A + k2 * B;
+    dB = -k2 * B + k1 * A;
+    A += dA;
+    B += dB;
+    Q = B / A;
+    plotpoint(t, A, "red");
+    plotpoint(t, B, "blue");
+    if (t < tmax) {
+        setTimeout("react()", delay);
+    }
+}
+
+
+function plotpoint(x, y, color) {
+    GRaddpoint(x, y, "", color, GRUSER);
+}
+
+
+</script>
+</head>
+<body>
+<form><input onclick="initialize()"></form>
+</body></html>

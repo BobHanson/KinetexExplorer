@@ -1,0 +1,67 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Simulate_init();
+
+>
+
+
+To an specifically-defined data textarea and image
+
+
+
+<p>
+<script language=javascript>
+Model_createNew("test2")
+Model_addComponent("A",1,"green")
+Model_addComponent("B",1,"")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A +B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.2)
+Model_setTemp(300)
+Expt_setRandomError(0.02)
+
+Data_setTarget("document.info.data")
+
+Graph_setTarget("myimage")
+
+</script>
+<table><tr><td width=200>
+<script language=javascript>Expt_show()</script>
+</td><td width=200>
+<script language=javascript>Rxn_show()</script>
+</td>
+<td>
+<form name=info>
+<textarea name=data rows=10 cols=40>testing</textarea>
+<p>
+<center>
+<img name=myimage src=gif/graph.gif>
+</center>
+</form>
+</td>
+</tr>
+</table>
+<script language=javascript>Data_show()</script>
+<script language=javascript>Graph_show()</script>
+
+
+
+</body>

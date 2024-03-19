@@ -1,0 +1,57 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+</head>
+<body
+
+onload=Simulate_init(1)
+
+>
+
+
+<hr>
+To new window
+
+<p>
+<script language=javascript>
+Model_createNew("test4")
+Model_addComponent("A",1,"green")
+Model_addComponent("B",2,"")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A +B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.2)
+Model_setTemp(130)
+Graph_setTarget("")
+Graph_setTitle("test4")
+
+</script>
+<table><tr><td width=400>
+<script language=javascript>Expt_show()</script>
+<td>
+<img src=transp.gif width=1 height=200>
+<p>
+<script language=javascript>Data_show()</script>
+</td>
+</tr>
+</table>
+<script language=javascript>Graph_show()</script>
+
+
+
+<hr>
+
+
+
+
+</body>

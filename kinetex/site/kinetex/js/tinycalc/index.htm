@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+<title>JavaScript Tiny Equation-Solving Calculator</title>
+<SCRIPT LANGUAGE="JavaScript" src=functions.js></script>
+<SCRIPT LANGUAGE="JavaScript" src=calc.js></script>
+<SCRIPT LANGUAGE="JavaScript" src=user.js></script>
+<script type="text/javascript">
+function doinit(){
+	user_init()
+	var s=location.search
+	s=s.replace(/\+DATA/,"")
+	if(s.length>1){
+		s=s.substring(1,s.length)
+		for(var i=0;i<Functions.length;i++){
+			if(Functions[i][0]==s){
+				user_setselect("ssolve",Functions[i][1])
+				break
+			}
+		}
+	}
+}
+</script>
+</HEAD>
+<body onload='doinit()'>
+<script type="text/javascript">
+user_createinterface()
+</script>
+</body>
+</HTML>

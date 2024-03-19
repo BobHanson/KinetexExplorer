@@ -1,0 +1,115 @@
+<html>
+<head>
+<script type="text/javascript" src=divs.js></script>
+<script type="text/javascript" src=../common/divgraph.js></script>
+<script type="text/javascript" src=model.js></script>
+<script type="text/javascript" src=explore.js></script>
+<script type="text/javascript" src=util.js></script>
+<script type="text/javascript" src=debug.js></script>
+
+<script type="text/javascript" src=expt.js></script>
+<script type="text/javascript" src=rxn.js></script>
+<script type="text/javascript" src=data.js></script>
+<script type="text/javascript" src=graph.js></script>
+<script type="text/javascript" src=analysis.js></script>
+
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Model_init()
+>
+
+<script type="text/javascript">
+Explore_sayh("clock")
+Model_createNew("rxn1")
+Model_addComponent("A",4,"colorless")
+Model_addComponent("B",2,"colorless")
+Model_addComponent("C",0,"black")
+Model_addComponent("X",1,"colorless")
+Model_setMechStep("A + B --> C","k1=0.02")
+Model_setMechStep("X + C --> B + D","k2=infinity")
+Model_hideInfo("[C],[Y],Temp")
+Model_fixInfo("Mech,Rate,k2")
+
+Model_setTemp(298)
+Expt_setParameters("ismini=true")
+Analysis_setParameters("ismini=true")
+
+//Data_setTarget("document.info.data")
+//Data_setParameters("dXdt=true")
+
+Graph_setBox(50,30,380,125)
+Graph_setTarget("mygraph")
+Graph_setYmax(1.2)
+
+Analysis_hideInfo("rate")
+</script>
+
+
+<table xborder=3>
+
+<tr>
+<td>
+
+ <table xborder=2>
+<tr><td>
+<script type="text/javascript">Model_show("rxn1")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table xborder=1>
+  <tr>
+  <td valign=top><script type="text/javascript">Expt_show("rxn1")</script></td>
+  <td valign=top><script type="text/javascript">Analysis_show("rxn1")</script></td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+ </table>
+
+
+</td>
+<td valign=top>
+
+  <table xborder=1>
+  <tr>
+  <td width=100 valign=top><script type="text/javascript">Rxn_show("rxn1")</script></td>
+  <td width=200>
+	<h4><font color=blue>
+
+Before pressing start, look closely at the mechanism.
+Species C is colored; all the rest are colorless. 
+What is the effect of <i>k</i><sub>2</sub> being "Very Large"? 
+How will the various concentrations change with time? 
+Why might this reaction be called a "clock" reaction?
+
+
+</font></h4>
+  </td>
+  </tr>
+  <tr>
+  <td colspan=2 valign=top><script type="text/javascript">Data_show("rxn1")</script></td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+<tr>
+<td></td><td colspan=2><img src=gif/graph.gif width=500 height=180 name=mygraph></td>
+</tr>
+</table>
+
+<script type="text/javascript">
+//can't show graph while in the table. MUST have a target for IE.
+Explore_sayq()
+Graph_show("rxn1")
+</script>
+
+</body>

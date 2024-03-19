@@ -1,0 +1,23 @@
+
+
+<HTML>
+<HEAD>
+<title> Bob's JavaScript Kinetics Simulation</title>
+<SCRIPT LANGUAGE="JavaScript">
+function dogoto(swhere)
+{
+ if(swhere.charAt(0)=="#")swhere="kine.htm"+swhere
+ parent.CALC_kinput.document.location=swhere
+}
+</script></head><body>
+<center>
+<a href='javascript:dogoto("#top")'>[top]</a> 
+ <a href='javascript:dogoto("#mechanism")'>[mechanism]</a> 
+ <a href='javascript:dogoto("#conc")'>[concentrations]</a> 
+<a href='javascript:dogoto("#graph")'>[graph]</a> 
+<SCRIPT LANGUAGE="JavaScript">
+if(document.location.href.indexOf("stolaf.edu")>=0){
+ document.writeln(" back to the <a target=_top href=http://www.stolaf.edu/depts/chemistry/courses/toolkits/126>[Chemistry 126 Toolkit]</a>") 
+}
+</script>
+</center>

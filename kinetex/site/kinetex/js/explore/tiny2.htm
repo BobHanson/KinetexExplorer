@@ -1,0 +1,73 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Model_init();
+>
+
+
+<script language=javascript>
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1/1.414,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> C")
+Model_setRateLaw("k[A][B]2")
+Model_setConstant("k",0.3)
+Model_setTemp(298)
+Expt_setEndTime(20)
+Model_select("C")
+Graph_setTarget("mygraph")
+
+Model_createNew("rxn2")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> C")
+Model_setRateLaw("k[A][B]2")
+Model_setConstant("k",0.3)
+Model_setTemp(298)
+Expt_setEndTime(20)
+Model_select("C")
+Graph_setTarget("rxn1")
+Analysis_setTarget("rxn1")
+</script>
+<table width=400>
+<tr><td>
+<table>
+<tr>
+ <td width=200><script language=javascript>Rxn_show("rxn1")</script></td>
+ <td width=200 ><script language=javascript>Rxn_show("rxn2")</script></td>
+</tr><tr>
+ <td width=200 ><script language=javascript>Expt_show("rxn1")</script></td>
+ <td width=200 ><script language=javascript>Expt_show("rxn2")</script></td>
+</tr><tr>
+<td colspan=2><p><a href=javascript:Expt_startAll()>Start Both at the Same Time</a></td>
+</tr>
+</table>
+</td></tr>
+</table>
+<table><tr>
+<td width=180><script language=javascript>Analysis_show("rxn1")</script></td>
+<td>
+<img src=gif/graph.gif width=500 height=280 name=mygraph>
+</td></tr>
+</table>
+<script language=javascript>Graph_showAll()</script>
+
+</body>

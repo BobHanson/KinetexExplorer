@@ -1,0 +1,105 @@
+Data?
+
+data(
+K,T
+2,300
+4,500
+8,700
+)
+plot(ln(K) vs. 1/T)
+m=slope
+b=intercept
+
+Delta_Ho=m*R
+Delta_So=b*R
+
+
+
+Ask examples:
+
+Show one value (72), but assign another (345.15)
+ Temp of ($T_~345.15;72)  
+
+
+Wrong answer gets alert (|):
+
+Right answer gets alert (!):
+
+When is <i>q</i> a state function?!Right, q is a state function when either pressure or volume is constant. When pressure is constant, q is DELTA_H; when volume is constant, q is DELTA_U.
+
+
+Quest examples:
+
+MOPT2 means ordered options
+
+Options from data columns:
+,['MOPT','$equation','What is the probability of drawing $drawwhat_ from the top of well-shuffled standard 52-card deck?']
+
+Options from data columns as fill-in-the-blanks
+,['MOPT','$effect','$cause_ the temperature of an endothermic reaction will result in _ in the value of the equilibrium constant.']
+
+Options from list on question line
+,['MOPT','vibrational,translational*,electronic','Rotational excitation generally requires more energy than _ excitation.']
+
+Options from data columns, correct answer given
+,['MOPT','$type:electronic','Which type of excitation is possible for all atoms and molecules in all three states of matter, solid, liquid, and gas?']
+
+Options from data columns, more than one correct answer present--only present one
+,['MOPT','$type:rotational,translational','Which type of excitation is not generally possible for solids?']
+
+Options with answer determined by calculation
+,['MOPT','endothermic,exothermic|[[(calcT(Equation,"Ho")>0?0:1)]]','Consider the Hess diagram shown below. Is this reaction endothermic or exothermic?[[hidden($eqn_);showHessH(Equation,5)]]']
+
+Options with options and answer determined by calculation
+,['MOPT','[[getSpeciesList(Equation)]]','Consider the Hess diagram shown below. Is this reaction endothermic or exothermic?[[hidden($eqn_);showHessH(Equation,5)]]']
+
+
+Relative test, less is true
+,['MREL','$type,$eorder,-1','Which of the following two types of energy level systems generally has the more closely spaced energy levels?']
+
+Relative test, more is true
+,['MREL','$type,$dorder,1','Which of the following two types of energy calculation involves the larger distance term?']
+
+Relative test, from a column, with calculation
+,['MREL','$column,[[whatevercalculation("$x_")]],1','Which of the following two types of energy calculation involves the larger distance terms, $mol1_ or $mol2_?']
+
+True/False; false is correct
+,['TF','0','Based on reduced mass, the rotational energy levels in HBr should be more closely spaced than those in I<sub>2</sub>.']
+
+True/False; true is correct
+,['TF','1','The reduced mass of a two-body system is always less than the smaller mass.']
+
+True/False; with calculation
+,['TF','[[calcDeltaU(Equation)>0?0:1]]','Consider the reaction shown below, [[hidden("$eqn2_")]] with DELTA_U=[[calcDeltaU(Equation)]] kJ. True or false: This reaction, if carried out in a calorimeter, will raise the temperature of the calorimeter.<center><pre>$eqn2_</pre></center> ']
+
+Calculation as JavaScript substitution
+,['CALC','[[showMoleculeBDECalc("$mol_")]]','What is the bond dissociation energy of $mol_?']
+
+Calculation with units indicated in brackets and roundoff indicated after @
+,['CALC','C = 1.00 [cal/g.K] * $ngram_ [g];Delta_T = [[$deg1_+$ddeg_]] - $deg1_ [oC or K];q_cal = C [cal/K] * Delta_T [K];q_kcal = q_cal * 1 [kcal] / 1000 [cal]@-2','The heat capacity of water is 1.00 cal/g/K. If a $ngram_ of water is heated from $deg1_ <sup>o</sup>C to [[$deg1_+$ddeg_]] <sup>o</sup>C, what is <i>q</I> in kilocalories? ']
+
+Calculation from equation on question line
+,['CALC','n0=$n0_;n1=$n1_;n2=$n2_;n=n0+n1+n2;W=n!/(n0!n1!n2!)','Calculate W for the system shown below, with the indicated number of particles on each level. <center>$n2_<br>--------<br>$n1_<br>--------<br>$n0_<br>--------</center>']
+
+Simplex calculation from standard equation; variables assigned from variable table
+,['CALCS','BOLTZ:nj=1e10','A Boltzmann distribution at $T_ Kelvin has $ni_ particles in the ground state (energy 0 Joules). How many particles would have $dEij_ Joules of energy.']
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

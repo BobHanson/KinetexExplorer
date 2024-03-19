@@ -1,0 +1,76 @@
+<HTML>
+<HEAD>
+<title>JavaScript Really Tiny Equation-Solving Calculator</title>
+<SCRIPT LANGUAGE="JavaScript" src=calc.js></script>
+<SCRIPT LANGUAGE="JavaScript" src=user2.js></script>
+</HEAD>
+<body>
+<form name=info><textarea name=result rows=20 cols=50></textarea></form>
+
+<script type="text/javascript">
+
+theequation=""
+whendone=""
+doctext=""
+
+ncycles=0
+nmaxcycles=100
+
+Eqns=new Array([]
+,["4*8+15",""]
+,["x+y=3","y=5"]
+,["x^2+x=16",""]
+)
+function startcalc(n){
+ if(n>=Eqns.length){
+	calc_setupsimplexfunction(1)	
+	calc_dosample()
+	whendone=""
+	calc_dosimplex("start")
+	return
+ }
+ alert("Calculating "+Eqns[n])
+ startsimplex(Eqns[n][0],Eqns[n][1],"startcalc("+(n+1)+")")
+}
+
+function startsimplex(f,vars,jsafter){
+ if(arguments.length<2)vars=""
+ if(arguments.length<3)jsafter=""
+ whendone=jsafter
+ ncycles=0
+ theequation=f
+ user_putinfo(f)
+ calc_setvariables(vars)
+ calc_dosimplex("start")
+}
+
+function user_indicate(what,Variables,theresult,niter,err){
+	if(what=="iter"){
+		if(ncycles++>nmaxcycles){
+			do_simplex(0)
+			document.info.result.value+=tsmodel+"\n\n"+datavar+"\nCalculation failed.\n"
+			eval(whendone)
+		}
+		return
+	}
+	if(what=="reset"){
+		return
+	}
+	if(what=="start"){
+		return
+	}
+	if(what=="stop"){
+		return
+	}
+	if(what=="done"){
+		document.info.result.value+=tsmodel+"\n\n"+datavar+"\n"
+		eval(whendone)
+		return
+	}
+}
+
+startcalc(1)
+
+</script>
+</body>
+</HTML>

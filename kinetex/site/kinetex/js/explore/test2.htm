@@ -1,0 +1,130 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Model_init(1)
+>
+
+<script language=javascript>
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A  --> C")
+Model_setRateLaw("k[A]")
+Model_setConstant("k",(Util_random_1_to(5)+1)/10)
+Model_fixInfo("Overall")
+//Model_queryInfo("Rate Law,k")
+Model_select("A")
+Model_setTemp(298)
+
+Graph_setImageSize(600,180)
+Graph_setBox(50,25,500,125)
+Graph_setTarget("mygraph")
+Graph_setParameters("keyx=-10|keyy=-20")
+Graph_setKey("blue=[A]#1;red=[A]#2")
+Graph_setYmax(1.2)
+
+Model_createNew("rxn2")
+Model_addComponent("A",1,"red")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation(ModelInfo["rxn1"].OverallEquation[0])
+Model_setRateLaw(ModelInfo["rxn1"].RateLaw[0])
+Model_setConstant("k",ModelInfo["rxn1"].k)
+Model_fixInfo("Overall")
+//Model_queryInfo("Rate Law,k")
+Model_select("A")
+Model_setTemp(298)
+
+Graph_setTarget("rxn1")
+Graph_setKey("-")
+</script>
+
+<table>
+<tr>
+<td>
+
+<table cellspacing=0 cellpadding=0>
+<tr>
+<td>
+
+ <table>
+<tr><td>
+<h4><font color=blue>Reaction #1</font> <a href="javascript:alert('The two reactions are the same. Investigate the effect of changing various aspects of the reaction. Check the slope by clicking on the graph.')">Note</a>
+</h4>
+<script language=javascript>Model_show("rxn1")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table>
+<tr>
+  <td valign=top><script language=javascript>Expt_show("rxn1")</script></td>
+  <td valign=top>
+ <script language=javascript>Analysis_show("rxn1")</script>
+ </td>
+</tr>
+  </table>
+
+</td>
+</tr>
+ </table>
+
+</td>
+<td>
+
+ <table>
+<tr><td>
+<h4><font color=red>Reaction #2</font></h4>
+<script language=javascript>Model_show("rxn2")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table>
+<tr>
+  <td valign=top><script language=javascript>Expt_show("rxn2")</script></td>
+  <td valign=top>
+ <script language=javascript>Analysis_show("rxn2")</script>
+ </td>
+</tr>
+  </table>
+
+</td>
+</tr>
+ </table>
+
+</td>
+</tr>
+<tr>
+<td colspan=2><img src=gif/graph.gif width=600 height=180 name=mygraph></td>
+</tr>
+</table>
+
+</td>
+<td>
+<script language=javascript>
+//can't show graph while in the table. MUST have a target for IE.
+Graph_showAll()
+Data_show("rxn1")
+Data_show("rxn2")
+</script>
+</td>
+</tr>
+</table>
+</body>

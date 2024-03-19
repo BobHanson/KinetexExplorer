@@ -1,0 +1,120 @@
+<html>
+<head>
+<title>Example i6: data plotter with title-based feedback</title>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript>
+
+function adddata(T,k){
+ var s=document.info.data.value
+ document.info.data.value=s+(s?"\n":"")+T+" , "+k
+}
+
+
+function dograph(){
+ var sdata=document.info.data.value
+ if(sdata.indexOf(",")<0){
+	alert("X,Y data must be separated by commas.")
+	return
+ }
+ if(sdata.indexOf(",")==sdata.lastIndexOf(",")){
+	alert("At least two data points must be present.")
+	return
+ }
+ GRopengraphwindow(600,300,50,50)
+ Info=new Array()
+ Info.graphwidth=500,Info.graphheight=200
+ Info.graphleft=Info.graphtop=50
+ Info.ptsize=8
+ Info.linewidth=2
+ Info.docurve=document.info.curve[0].checked
+ Info.dotrendline=document.info.trend[0].checked
+ Info.trendlabelx=300
+ Info.trendlabely=-40
+ Info.doxticnums=Info.doyticnums=true
+ Info.dogridx=Info.dogridy=true
+ Info.xaxislabelx=Info.xaxislabely=NaN
+ Info.ticwidth=1
+ Info.imagedir="../common"
+ Info.ptsize=8
+ Info.xvar=document.info.xvar.value
+ Info.yvar=document.info.yvar.value
+ Info.datatransform=yvsx
+ Info.title="<a href=javascript:close()>Close</a>"
+ GRdrawgraph(sdata,"","",Info)
+ GRclosegraphdocument()
+}
+
+function getPlotBtns(txt,codeframe){
+ if(arguments.length==1)codeframe=""
+ if(codeframe.length)codeframe+="."
+ var sout=""
+ gifdir="../common"
+ sout+="\n<a href=\"javascript:"+codeframe+"doShowPlot('"+txt+"','y vs. x')\"><img src="+gifdir+"/yvsx.gif></a>"
+ sout+="\n<a href=\"javascript:"+codeframe+"doShowPlot('"+txt+"','1/y vs. x')\"><img src="+gifdir+"/1yvsx.gif></a>"
+ sout+="\n<a href=\"javascript:"+codeframe+"doShowPlot('"+txt+"','ln(y) vs. x')\"><img src="+gifdir+"/lnyvsx.gif></a>"
+ sout+="\n<a href=\"javascript:"+codeframe+"doShowPlot('"+txt+"','ln(y) vs. 1/x')\"><img src="+gifdir+"/lnyvs1x.gif></a>"
+ sout+="<br>"
+ sout+="\n<a href=\"javascript:"+codeframe+"doShowPlot('"+txt+"','x vs. y')\"><img src="+gifdir+"/xvsy.gif></a>"
+ sout+="\n<a href=\"javascript:"+codeframe+"doShowPlot('"+txt+"','1/x vs. y')\"><img src="+gifdir+"/1xvsy.gif></a>"
+ sout+="\n<a href=\"javascript:"+codeframe+"doShowPlot('"+txt+"','ln(x) vs. y')\"><img src="+gifdir+"/lnxvsy.gif></a>"
+ sout+="\n<a href=\"javascript:"+codeframe+"doShowPlot('"+txt+"','ln(x) vs. 1/y')\"><img src="+gifdir+"/lnxvs1y.gif></a>"
+ return sout
+}
+
+function fixinputlines(s){
+	//IE uses \r\n for line ends, while Netscape uses just \n
+	//figure on some browsers just using \r as well.
+	//furthermore, some versions of IE refuse to replace \r with \n!
+	//however, it can replace \r\n with \n.
+	return strsub(strsub(s.replace(/\r/g,"\n").replace(/\r\n/g,"\n"),"\n\n","\n"),"  "," ")
+}
+
+function strsub(ssub,ch1,ch2)
+{
+	if (ch2!=""){if (ch2.indexOf(ch1)>=0) return ssub}
+	var s=ssub
+	var i=s.indexOf(ch1)
+	while (i>=0)
+	{
+		s=s.substring(0,i)+ch2+s.substring(i+ch1.length,s.length)
+		i=s.indexOf(ch1)
+	}
+	return s
+}
+
+
+function doShowPlot(txtarea,yvsxstuff){
+ yvsx=yvsxstuff
+ dograph()
+}
+
+function doinit(){
+ setTimeout("document.info.data.value=''",100)
+}
+
+</script>
+</head>
+<body onload=doinit()>
+<form name=info>
+
+x= <input type=text value=' T_Kelvin' name=xvar size=10>
+,
+y= <input type=text value=' k' name=yvar size=10>
+<br>
+Add data to the textbox below, separating values by commas.
+<textarea name=data rows=8 cols=30>
+</textarea>
+<br>
+Do you want to add a curve<br>through the points?
+<input type=radio name=curve value='yes'>yes 
+<input type=radio name=curve value='no' checked>no 
+<br>
+Do you want a trend line?
+<input type=radio name=trend value='yes' checked>yes 
+<input type=radio name=trend value='no'>no 
+<br>
+<script language=javascript>document.write(getPlotBtns("document.info.data"))</script>
+
+<br>
+</form>
+</body></html>

@@ -1,0 +1,180 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+<script language=javascript src=debug.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Model_init(-1);
+>
+
+<script language=javascript>
+Explore_sayh("ratelaw",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1,"colorless")
+Model_addComponent("C",0,"red")
+
+//Model_setOverallEquation("A + B --> C||A + 2B --> C||2A + B --> C||2A + 2B --> C")
+//Model_setRateLaw("k[A][B]||k[A]||k[B]||k[A]^2[B]||k[A][B]^2||k[A]^2[B]^2")
+
+Model_setOverallEquation("2A + B --> C")
+Model_setRateLaw("k[A][B]^2")
+Model_setConstant("k",(Util_random_1_to(5)+1)/50)
+Model_fixInfo("Rate,Overall")
+Model_hideInfo("[C]o,Temp")
+//Model_queryInfo("Rate Law,k")
+Model_select("A")
+Model_setTemp(298)
+
+Expt_setEndTime(20)
+
+Graph_setImageSize(600,180)
+Graph_setBox(50,25,500,125)
+Graph_setTarget("mygraph")
+Graph_setParameters("keyx=-10|keyy=-20")
+Graph_setKey("blue=[A]#1;red=[A]#2")
+Graph_setYmax(1.2)
+
+Model_createNew("rxn2")
+Model_addComponent("A",1,"red")
+Model_addComponent("B",1,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation(ModelInfo["rxn1"].OverallEquation[0])
+Model_setRateLaw(ModelInfo["rxn1"].RateLaw[0])
+Model_setConstant("k",ModelInfo["rxn1"].k)
+Model_fixInfo("Rate,Overall")
+Model_hideInfo("[C]o,Temp")
+//Model_queryInfo("Rate Law,k")
+Model_select("A")
+Model_setTemp(298)
+
+Graph_setTarget("rxn1")
+Graph_setKey("-")
+Graph_setParameters("keyx=-10|keyy=-20")
+
+Expt_setEndTime(20)
+
+</script>
+
+
+<table cellspacing=0 cellpadding=0>
+<tr>
+<td>
+
+ <table>
+<tr><td>
+<h4><font color=blue>Reaction #1</font></h4>
+<script language=javascript>Model_show("rxn1")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table>
+<tr>
+  <td valign=top><script language=javascript>Expt_show("rxn1")</script></td>
+  <td valign=top>
+ <script language=javascript>Analysis_show("rxn1")</script>
+ </td>
+  <td valign=top>
+
+
+ </td>
+
+</tr>
+  </table>
+
+</td>
+</tr>
+ </table>
+
+</td>
+<td>
+
+ <table>
+<tr><td>
+<h4><font color=red>Reaction #2</font></h4>
+<script language=javascript>Model_show("rxn2")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table>
+<tr>
+  <td valign=top><script language=javascript>Expt_show("rxn2")</script></td>
+  <td valign=top>
+ <script language=javascript>Analysis_show("rxn2")</script>
+ </td>
+</tr>
+  </table>
+
+</td>
+  <td valign=top>
+
+
+ </td>
+</tr>
+ </table>
+
+</td>
+</tr>
+<tr>
+<td colspan=2><img src=gif/graph.gif width=600 height=180 name=mygraph></td>
+</tr>
+</table>
+
+<script language=javascript>
+function setv(k1,a1,b1,k2,a2,b2){
+	document.model_rxn1.k.value=k1
+	document.model_rxn1.A.value=a1
+	document.model_rxn1.B.value=b1
+	document.model_rxn2.k.value=k2
+	document.model_rxn2.A.value=a2
+	document.model_rxn2.B.value=b2
+	Model_refreshAll(true)
+	Expt_startAll()
+}
+
+Q_ask("What does the rate law suggest will happen if the concentration of A is doubled?"
+	,"If [A] is doubled, since the reaction is first order in A, the reaction rate should also double.")
+Q_ask("What does the rate law suggest will happen if the concentration of B is doubled?"
+	,"If [A] is doubled, since the reaction is second order in B, the reaction rate should quadruple.")
+Q_ask("How is the rate of change in concentration of A (d[A]/dt) related to the reaction rate in this case?"
+	,"Since A is a reactant with a coefficient of 2, we have that react rate = -(1/2)d[A]/dt.")
+Q_ask("How are the exponents in the rate law related to the coefficients in the overall chemical equation chosen to represent the reaction?"
+	,"There is no relation between the exponents in the rate law and the coefficients in the overall chemical equation chosen to represent the reaction.")
+Q_ask("What are the units of <i>k</i> in this rate law?"
+	,"The units of k have to be (1/M^2) per second so that, overall, the right-hand side has units of mole/liter/second.")
+Q_ask("Compare the initial rates when all parameters are the same except <a href=javascript:setv(.08,.5,1,.08,1,1)>the initial concentration of A is either 0.5 M or 1.0 M.</a> "
+	+"What would we learn from this pair of experiments if we didn't know the rate law?"
+	,"When the initial concentration of A goes from 0.5 M to 1.0 M, the reaction rate goes from 0.040 mole/liter/second to 0.080 mole/liter/second. That is, it doubles. "
+	+"This means that the reaction is first order in A and that the exponent for [A] in the rate law is 1.")
+Q_ask("Compare the initial rates when all parameters are the same except <a href=javascript:setv(.08,1,0.5,.08,1,1)>the initial concentration of B is either 0.5 M or 1.0 M.</a> "
+	+"What would we learn from this pair of experiments if we didn't know the rate law?"
+	,"When the initial concentration of B goes from 0.5 M to 1.0 M, the reaction rate goes from 0.20 mole/liter/second to 0.80 mole/liter/second. That is, it quadruples. "
+	+"This means that the reaction is second order in B and that the exponent for [B] in the rate law is 2.")
+
+//can't show graph while in the table. MUST have a target for IE.
+Graph_showAll()
+//Data_show("rxn1")
+//Data_show("rxn2")
+
+</script>
+
+</body>

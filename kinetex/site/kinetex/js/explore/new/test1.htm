@@ -1,0 +1,191 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+</head>
+<body>
+
+
+<hr>
+Standard output
+<script language=javascript>
+Model_createNew("test")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1,"colorless")
+Model_addComponent("C",0,"red")
+Model_addComponent("D",0,"yellow")
+Model_setOverallEquation("A + B --> C + 2D")
+Model_setRateLaw("k[A][B]2")
+Model_setConstant("k",0.1)
+Model_setConcentration("B",2)
+Model_setTitle("this is a test")
+Graph_setImageSize(400,300)
+Graph_setBox(0,0,300,200)
+Data_setRows(15)
+Model_setTemp(200)
+//document.write("<pre>"+Debug_getObj("ModelInfo"))
+</script>
+<table>
+<tr>
+<td>
+<script language=javascript>Model_show()</script>
+</td>
+
+
+<td>	
+<table><tr>
+<td width=200>
+<script language=javascript>Expt_show()</script>
+</td>
+<td width=200>
+<script language=javascript>Rxn_show()</script>
+</td>
+</tr>
+</table>
+
+</tr>
+<tr>
+<td valign=top>
+<script language=javascript>Data_show()</script>
+</td>
+<td valign=top>
+<script language=javascript>Graph_show()</script>
+</td>
+</tr>
+</table>
+
+
+
+
+
+<hr>
+[B] set very high, to fix kinetics
+
+<script language=javascript>
+Model_createNew("flood")
+Model_addComponent("A",6,"blue")
+Model_addComponent("B",20,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.01)
+Model_setTitle("In this case [B] is very large; first-order kinetics.")
+Graph_setImageSize(800,300)
+Graph_setBox(0,0,700,200)
+Graph_setYmax(10)
+Model_setTemp(300)
+</script>
+<table><tr><td width=200>
+<script language=javascript>Expt_show()</script>
+</td><td width=200>
+<script language=javascript>Rxn_show()</script>
+</td><td width=200>
+<script language=javascript>Data_show()</script>
+</td></tr>
+</table>
+<script language=javascript>Graph_show()</script>
+
+
+
+<hr>
+To an specifically-defined data textarea and image
+
+
+
+<p>
+<script language=javascript>
+Model_createNew("test2")
+Model_addComponent("A",1,"green")
+Model_addComponent("B",1,"")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A +B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.2)
+Data_setTarget("document.info.data")
+Graph_setTarget("myimage")
+Model_setTemp(300)
+Expt_setRandomError(0.05)
+</script>
+<table><tr><td width=200>
+<script language=javascript>Expt_show()</script>
+</td><td width=200>
+<script language=javascript>Rxn_show()</script>
+</td>
+<td>
+<form name=info>
+<textarea name=data rows=10 cols=40>testing</textarea>
+<p>
+<center>
+<img name=myimage src=gif/graph.gif>
+</center>
+</form>
+</td>
+</tr>
+</table>
+<script language=javascript>Graph_show()</script>
+
+<hr>
+To the graph above.
+
+<p>
+<script language=javascript>
+Model_createNew("test3")
+Model_addComponent("A",1,"green")
+Model_addComponent("B",2,"")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A +B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.2)
+Graph_setTarget("test2")
+Model_setTemp(300)
+Expt_setRandomError(0.05)
+</script>
+<table><tr><td width=200>
+<script language=javascript>Expt_show()</script>
+</td>
+</tr>
+</table>
+<script language=javascript>Graph_show()</script>
+
+
+
+<hr>
+<hr>
+To new window
+
+<p>
+<script language=javascript>
+Model_createNew("test4")
+Model_addComponent("A",1,"green")
+Model_addComponent("B",2,"")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A +B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.2)
+Graph_setTarget("")
+Model_setTemp(130)
+</script>
+<table><tr><td width=200>
+<script language=javascript>Expt_show()</script>
+</td>
+</tr>
+</table>
+<script language=javascript>Graph_show()</script>
+
+
+
+<hr>
+
+
+
+
+</body>

@@ -1,0 +1,25 @@
+<html><body><form>
+<input type=hidden name=stitle value="">
+<input type=hidden name=sinfo value="The oregonator mechanism involves a single autocatalytic step, resulting in an oscillating reaction. The concentrations of A, B, C, and D are all kept constant. After a few cycles, the concetration of intermediate X goes too high to continue the calculation. Set the end point at 500 seconds to see several oscillations. From Atkins, Physical Chemistry, 6th Ed. p 810.">
+<input type=hidden name=sfunc value="">
+<input type=hidden name=sdefs value="">
+<input type=hidden name=svars value="">
+<textarea name=datarxn>
+   A  +  Y  -->  X  	 k1=.05;
+   X  +  Y  -->  C  	 k2=.2;
+   B  +  X  -->  X + X + Z  	 k3=.1;
+   B  +  X  -->  X + X + Z  	 k4=.1;
+   X + X --> D; k5=.4
+   Z  --> Y  k6=.1;
+   Z  --> Y  k7=.1;
+[A]=1(constant);
+[B]=1(constant);
+[C]=1(constant);
+[D]=1(constant);
+[X]=5.025e-11;
+[Y]=3.0e-4;
+[Z]=2.412e-5;
+</textarea>
+<textarea name=action></textarea>
+</form></body></html>
+

@@ -1,0 +1,81 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Simulate_init()
+>
+
+<script language=javascript>
+Model_createNew("rxn1")
+Model_addComponent("A",1,"blue")
+Model_addComponent("B",1,"green")
+Model_addComponent("C",0,"red")
+Model_setMechStep("A + B <--> I","k1=1,k-1=1")
+Model_setMechStep("I --> C","k2=0.01")
+
+Model_fixInfo("Mechanism,Rate Law")
+//Model_select("A")
+
+Model_setTemp(298)
+Expt_setParameters("ismini=true")
+
+Data_setTarget("document.info.data")
+
+Graph_setBox(50,25,450,125)
+Graph_setTarget("mygraph")
+Graph_setYmax(1.2)
+
+Analysis_hideInfo("rate")
+Analysis_setParameters("ismini=true")
+</script>
+
+<table cellspacing=0 cellpadding=0>
+
+<tr>
+<td colspan=3>
+<h4><font color=blue>What if the first step in a two-step mechanism is reversible?</font></h4>
+</td>
+</tr>
+
+<tr>
+<td><script language=javascript>Model_show("rxn1")</script></td>
+<td valign=top>
+ <font color=blue>In this case we have a fast, reversible first step. <br>
+ Notice that it's almost like an equilibrium is established.<br>
+ (Only, in this case, the concentrations are changing slightly<br>
+ due to the slow reaction of I to make C.)<br>
+ </font>
+ <form name=info><textarea name=data rows=10 cols=55></textarea></form>
+ <table border=0>
+  <tr>
+  <td valign=top><script language=javascript>Expt_show("rxn1")</script></td>
+  <td valign=top> <script language=javascript>Analysis_show("rxn1")</script></td>
+  </tr>
+ </table>
+</td>
+</tr>
+
+</table>
+
+<img src=gif/graph.gif width=600 height=180 name=mygraph>
+
+<script language=javascript>
+//can't show graph while in the table. MUST have a target for IE.
+Graph_show("rxn1")
+</script>
+
+</body>

@@ -1,0 +1,95 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Model_init(-1);document.form1.reset();
+>
+
+<script language=javascript>
+Explore_sayh("preeq",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("O2",0.5,"blue")
+Model_addComponent("O3",0.02,"red")
+Model_setParameters("overallequation='2O3 --> 3O2'")
+Model_setMechStep("O3 <--> O2 + O","k1=1,k-1=100")
+Model_setMechStep("O + O3 --> 2O2","k2=1")
+Model_hideInfo("[O],Temp")
+Model_fixInfo("Overall,Mechanism,Rate Law")
+//Model_select("A")
+
+Model_setTemp(298)
+Analysis_setParameters("ismini=true")
+
+//Data_setParameters("dXdt=true")
+
+Graph_setImageSize(500,180)
+Graph_setBox(50,30,350,125)
+Graph_setTarget("mygraph")
+Graph_setYmax(2.5)
+
+Analysis_hideInfo("rate")
+</script>
+
+
+<table width=700 cellspacing=0 cellpadding=0 xborder=3>
+
+<tr><td>
+<script language=javascript>Model_show("rxn1")</script>
+<br>
+&nbsp;
+&nbsp;
+&nbsp;
+
+<script language=javascript>Analysis_show("rxn1")</script>
+<br>
+&nbsp;
+<br>
+&nbsp;
+<br>
+</td>
+<td>
+<form name=form1><input type=checkbox value=0 onclick=Data_showDerivatives(checked)>Tabulate Derivatives</form>
+<script language=javascript>Data_show("rxn1")</script>
+<br>
+<img src=gif/graph.gif width=500 height=180 name=mygraph>
+
+</td>
+</tr>
+<tr>
+<td colspan=2>
+
+<script language=javascript>
+Q_ask("It probably looks at though there were no reaction. But click on the blue (O<sub>2</sub>) point at 5 seconds. You will see that the concentration of O<sub>2</sub> is increasing. Note the rate of change of [O<sub>2</sub>] at 5 seconds. Now try doubling the concentration of O<sub>3</sub>. (Be sure to start the reaction. Again click on the blue point at 5 seconds.) What is the effect of doubling the [O<sub>3</sub>] on the rate of change of [O<sub>2</sub>]? "
+	+"What then is the order of reaction with respect to O<sub>3</sub>?"
+	,"The rate of change in [O2] quadrulpes when [O3] is doubled. So the order of the reaction with respect to O3 is 2.")
+Q_ask("Now try doubling the concentration of O<sub>2</sub>. Again, be sure to start the reaction and then click on the point for [O<sub>2</sub>] at 5 seconds. What is the effect of doubling the [O<sub>2</sub>] on the rate of change of [O<sub>2</sub>]? What then is the order of reaction with respect to O<sub>2</sub>?","The rate of change in [O2] is cut be a half when [O2] is doubled. So the order of the reaction with respect to O2 is -1.")
+Q_ask("What is the rate law for this reaction?","The rate law for the reaction is \"reaction rate = k[O3]^2/[O2].\"")
+
+Explore_sayq("preeq",isqonly)
+</script>
+
+</td>
+</tr>
+</table>
+
+<script language=javascript>
+//can't show graph while in the table. MUST have a target for IE.
+Graph_show("rxn1")
+</script>
+
+</body>

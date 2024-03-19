@@ -1,0 +1,74 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Model_init();
+>
+
+
+<script language=javascript>
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1/1.414,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> C")
+Model_setRateLaw("k[A][B]2")
+Model_setConstant("k",0.3)
+Model_setTemp(298)
+Expt_setEndTime(20)
+Model_select("C")
+
+Model_createNew("rxn2")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> C")
+Model_setRateLaw("k[A][B]2")
+Model_setConstant("k",0.3)
+Model_setTemp(298)
+Expt_setEndTime(20)
+Model_select("C")
+</script>
+In this comparison, the reaction going on in the two flasks is the same.
+<table width=700>
+<tr><td>
+<table>
+<tr>
+ <td width=300><script language=javascript>Rxn_show("rxn1")</script></td>
+ <td width=400 ><script language=javascript>Rxn_show("rxn2")</script></td>
+</tr><tr>
+ <td width=300 ><script language=javascript>Data_show("rxn1")</script></td>
+ <td width=400 ><script language=javascript>Data_show("rxn2")</script></td>
+</tr><tr>
+<td colspan=2><p><a href=javascript:Expt_startAll()>Start Both at the Same Time</a></td>
+</tr>
+</table>
+</td></tr>
+<tr><td>
+<script language=javascript>
+Q_ask("From the data tables, how can you tell which is compounds are reactants and which are products?"
+,"The concentrations of A and B are decreasing with time, so they are reactants. The concentration of C is increasing, so it is the product.")
+Q_ask("Looking at the data, how can you tell that the equation for this reaction <br>is A + B --> C, not A + 2B --> C?"
+,"Although A and B start at different concentrations, they both decrease by the same amount in a given time. For example, in the first reaction, both A and B decrease by about 0.064 mole/liter. Thus, their coefficients in the equation must be the same. In this same time period, [C] increases by the same amount that [A] and [B] decrease, 0.064 mole/liter. So the coefficient on C must be the same.")
+Q_ask("Looking at the data for [C], how can you tell that the second reaction is going faster than the first reaction?", "")
+</script></td>
+</td></tr>
+</table>
+
+</body>

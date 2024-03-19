@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Mechanism-Based Kinetics Simulator</title>
+
+<script LANGUAGE="JavaScript" src=divgraph.js></script>
+<script LANGUAGE="JavaScript" src=utility.js></script>
+<script LANGUAGE="JavaScript" src=graphing.js></script>
+<script language=javascript src=data.js></script>
+<script LANGUAGE="JavaScript">
+if(top==self)document.location="index.htm"
+/*
+ bob hanson hansonr@stolaf.edu 5/2/98
+ revised 8/13/00 to add gnuplot
+ revised 6/29/01 to add divgraph
+ revised 5/8/02 to add constant values, jstep
+ revised 10/8/02 for IE5/mac compatibility "thedata"
+ revised 11:55 PM 4/7/2005 for better calculation of initial requirements
+ revised 10/27/2014 9:35:50 AM adding randomness option
+*/
+
+MAXREACT = 4;
+istest=false
+doloadit=true
+digits="0123456789"
+oldtoken=""
+
+islocal=(document.location.href.toUpperCase().indexOf("FILE:/")==0)
+islocal=false //turns off personal data option
+dataserver=""  //turns off PNG/GIF option
+
+isfilelist=false
+defdisplaytype=0
+btnlock=false
+havedata=false
+going=false
+niter=0
+nstep=0
+pstart=0
+n__=0
+iter=0
+
+function resetarrays(){
+	R = [];
+	P = [];
+	k = [];
+	K = [];
+	nominalRate = [];
+	Q = [];
+	dx = [];
+	rxnRate = [];
+	
+	//dRP=new Array()
+	C=["x_"]
+	T=[""]
+	dT=[]
+	nT=[]
+	ST={}
+	isNeeded=new Array()
+	isProduct=new Array()
+	isConst=new Array()
+	C["x_"]=1
+	maxc=-1e99
+	maxr = 0;
+	mainvlist="\n"
+	Vlist=new Array()
+	n__=0
+	nv=0
+	neq=-1
+	iter=0
+	ncount=1
+	dt=1
+}
+resetarrays()
+
+CH=new Array("-1","-2","-3","-4","-5","-6","-7","-8","-9")
+slistold=""
+filename=""
+
+function newrow()
+{
+ neq++
+ R[neq]=["x_","x_","x_","x_",0]
+ P[neq]=["x_","x_","x_","x_",0]
+ k[neq]=new Array(.1,.1)
+ K[neq]=0
+ nominalRate[neq]=0
+ Q[neq]=0
+ dx[neq]=""
+ rxnRate[neq] = ["-1","-1"];
+}
+
+function parseinfo(dojump)
+{
+ //usr.datarates.value=""
+ document.getElementById("concdiv").innerHTML = "";
+ document.getElementById("ratediv1").innerHTML = "";
+ document.getElementById("ratediv2").innerHTML = "";
+ slist=usr.datarxn.value
+ slist=slist.replace(/\</," <").replace(/\>/,"> ").replace(/\-\-\>/," -->")
+ slist=clean(slist)
+ if (slist==slistold)return
+ slistold=slist
+ resetarrays()
+ var V=slist.split(";")
+ slist=V.join(" ; ")
+ nthisrow=0
+ while(slist.length)dotoken(gettoken())
+ neq++
+ usr.datarxn.value=getallinfo()
+ for(var i=0;i<nv;i++)maxc=Math.max(C[Vlist[i]],maxc)
+ if(dojump)dogoto("#conc")
+ listconc()
+ for(var i=1;i<Math.min(nv+1,usr.swherex.options.length);i++)
+ {
+  usr.swherex.options[i].text=Vlist[i-1]
+ }
+ havedata=true
+}
+
+function dotoken(stoken)
+{
+ if(stoken=="" || stoken==" " || stoken=="+")return 1
+ if (stoken.indexOf("K=") == 0){
+  K[neq] = eval(stoken.substring(2));
+	k[neq][0] = 0.01;
+	k[neq][1] = 0.01/K[neq]; 
+  return 1;
+ }
+ if (stoken.indexOf("relrate=") == 0){
+  nominalRate[neq] = eval(stoken.substring(5));
+	if (k[neq]) {
+		k[neq][0] = nominalRate[neq]*0.01;
+		k[neq][1] = nominalRate[neq]*0.01/K[neq]; 
+	}
+  return 1;
+ }
+
+ if (stoken.indexOf("dt=") == 0) {
+  usr.tdt.value = stoken.substring(3);
+  return 1;
+ }
+  
+ var ch=stoken.charAt(0)
+ if(ch=="/")
+ {
+  var i=slist.indexOf(";")
+  if(i>=0)slist=slist.substring(i+2,slist.length)
+  return 0
+ }
+ if(stoken==";")return nthisrow=0
+ if(ch=="k")
+ {
+  var V=stoken.split("=")
+  var j=(stoken.substring(1,2)=="-"?1:0)
+  var i=eval(V[0].substring(1+j,V[0].length))-1
+  k[neq][j]=eval(V[1]) 
+  return 1
+ }
+ if(ch=="-")
+ {
+  dx[neq]=stoken
+  k[neq][1]=0
+  return 1
+ }
+ if(ch=="<")
+ {
+  dx[neq]=stoken
+  return 1
+ }
+ if(ch=="[")
+ {
+  var V=stoken.split("=")
+  var s=V[0].substring(1,V[0].length-1)
+  C[s]=parseFloat(V[1])
+  isConst[s]=(V[1].indexOf("(constant)")>=0)
+  return 1
+ }
+ if(digits.indexOf(ch)>0)
+ {
+  ncount=eval(ch)
+  if(stoken.length>1)
+  {
+   slist=stoken.substring(1,stoken.length) + " " + slist
+  }
+  return 0
+ }
+ if(!nthisrow)newrow()
+ nthisrow=true
+ if (dx[neq].length)
+ {
+  P[neq][MAXREACT]=Math.min(P[neq][MAXREACT],MAXREACT-1)
+  P[neq][P[neq][MAXREACT]]=stoken
+  P[neq][MAXREACT]++
+ }else{
+  R[neq][MAXREACT]=Math.min(R[neq][MAXREACT],MAXREACT-1)
+  R[neq][R[neq][MAXREACT]]=stoken
+  R[neq][MAXREACT]++
+ }
+ 
+ for(var i=1;i<ncount;i++)slist=stoken + " " + slist
+ ncount=1
+ C[stoken]=0
+ isConst[stoken]=false
+ var s=stoken+"\n"
+ if(mainvlist.indexOf("\n"+s)<0)
+ {
+  mainvlist+=s
+  Vlist[nv]=stoken
+  T[nv] = [];
+  dT[nv] = [];
+  T[nv][0]=0
+  dT[nv][0]=0
+  nv++
+ }
+ return 1
+}
+
+function gettoken()
+{
+ var stoken=""
+ var i=slist.indexOf(" ")
+ if(i<0)
+ {
+  stoken=slist
+  slist=""
+  return stoken
+ }
+ stoken=clean(slist.substring(0,i))
+ slist=slist.substring(i+1,slist.length)
+ return stoken
+}
+
+function getallinfo()
+{
+ var s=""
+ for(var i=0;i<neq;i++)
+ {
+  s+="   "+getstoich(i)
+  if (K[i]) {
+  	s += "\t K=" + K[i];
+  	if (nominalRate[i])
+  		s +=" relrate="+nominalRate[i];
+  } else {
+	  s+="\t k"+(i+1)+"="+k[i][0]
+  	if(k[i][1]!=0)s+="  k-"+(i+1)+"="+k[i][1]
+  }
+  s+="\n"
+ }
+ if(neq)s+="//-----------------------------------\n// "+getstoich(-1) + "  overall\n\n"
+ s+=getneeds()
+ return s
+}
+
+function getneeds(){
+ var s=""
+ for(var i=0;i<nv;i++){
+  IsNeeded[Vlist[i]]=-1
+  IsProduct[Vlist[i]]=0
+ }
+ if(neq==0)return ""
+
+ for(var j=0;j<MAXREACT;j++)IsNeeded[R[0][j]]=1
+ for(var i=0;i<neq;i++){ 
+  for(var j=0;j<MAXREACT;j++){//if reactant is already a product and not already needed, make it unneeded
+   if(IsProduct[R[i][j]] && IsNeeded[R[i][j]]<0)IsNeeded[R[i][j]]=0
+  }
+  for(var j=0;j<MAXREACT;j++){
+		IsProduct[P[i][j]]=1
+  	if(IsNeeded[P[i][j]]<0)IsNeeded[P[i][j]]=0
+  }
+ }
+ for(var i=0;i<nv;i++){
+  if(IsNeeded[Vlist[i]]<0)IsNeeded[Vlist[i]]=1
+//  if(IsNeeded[Vlist[i]] && C[Vlist[i]]==0)C[Vlist[i]]=0.000001
+ }
+ for(var i=0;i<nv;i++)
+ {
+  var sv=Vlist[i]
+  if(C[sv]<0)C[sv]=-C[sv]
+  if(C[sv]!=0)s+="["+sv+"]="+C[sv]+(isConst[sv]?"(constant)":"")+"\n"
+ }
+ return s
+}
+
+
+function getstoich(iwhich,iscatalyst)
+{
+ var n0=(iwhich<0?0:iwhich)
+ var n1=(iwhich<0?neq:iwhich+1)
+ var isirrev=false
+ IsNeeded=new Array()
+ IsProduct=new Array()
+ ST["x_"]=0
+ for(var i=0;i<nv;i++)ST[Vlist[i]]=0;
+ for(var i=n0;i<n1;i++)
+ { 
+  isirrev=(isirrev || k[i][1]==0)
+  for(var j=0;j<MAXREACT;j++)
+  {
+   ST[R[i][j]]+=(iwhich<0?-1:10)
+   ST[P[i][j]]+=1
+  }
+ }
+ var sr=""
+ var sl=""
+
+ for(var i=0;i<nv;i++)
+ {
+  var e=ST[Vlist[i]]  
+  var nl=(iwhich<0?e:-Math.floor(e/10))
+  var nr=(iwhich<0?e:e % 10)
+  if(nl<0)
+  {
+   sl=sl+"+  "+(nl<-1?(-nl)+" ":"")+Vlist[i]+"  "
+  }
+  if(nr>0)sr=sr+"+  "+(nr>1?nr+" ":"")+Vlist[i]+"  "
+ }
+ return sl.substring(3,sl.length)+(isirrev?"-->  ":"<==>  ")+sr.substring(3,sr.length)
+}
+
+function q(neq,i,RP) {
+	var a = RP[neq][i];
+	if (a == "x_")
+		return 1;
+	var c = C[a];
+	var n = (RP == R ? -1 : 1)*ST[a]
+	return (c == 0 ? 0 : c == 1 || n == 0 ? 1: Math.pow(c, 1))
+}
+
+function initRun() {
+	for (var i = 0; i < neq; i++) {
+		rxnRate[i][0] = k[i][0];
+		Q[i] = (K[i] ? "1" : null);
+		for (var j = 0; j < MAXREACT; j++) {
+			rxnRate[i][0] += "*C['" + R[i][j] + "']";
+			if (Q[i]) 
+				Q[i] += "*q(" + i + "," + j + ",P)";
+		}
+		rxnRate[i][1] = k[i][1];
+		for (var j = 0; j < MAXREACT; j++) {
+			rxnRate[i][1] += "*C['" + P[i][j] + "']";
+			if (Q[i])
+				Q[i] += "/q(" + i + "," + j + ",R)";
+		}
+	}
+	getMaxRate();
+}
+
+function dorun(ifirst) {
+	if (!havedata) {
+		ifirst = 0;
+		parseinfo(true);
+	}
+	if (neq==0) {
+		dogoto("#mech");
+		return alert("No mechanism!")
+	}
+	niter = Math.max(Math.round(eval(usr.tniter.value)),1);
+	nstep = Math.max(Math.round(eval(usr.tnstep.value)),1);
+	dt = parseFloat(usr.tdt.value);
+	iter = ifirst;
+	going = true;
+	if (ifirst == 0) {
+		initRun();
+		for (var i = 0; i < nv; i++)
+			T[i][0] = C[Vlist[i]];
+		addpoints();
+		doloop(false);
+		for (var i = 0; i < nv; i++)
+			dT[i][0] = T[i][1] - T[i][0];
+		iter = 0;
+		n__ = 0;
+		listrate();
+		n__ = 1;
+	}
+	doloop(true);
+	return 1;
+}
+
+function doloop(docontinue) {
+	if (!going) 
+		return 0;
+	C["x_"] = 1;
+	for (var i = 0; i < neq; i++) {
+		var e = dt * (eval(rxnRate[i][0]) - eval(rxnRate[i][1])); 
+		for (var j = 0; j < MAXREACT; j++) {
+			if (!isConst[R[i][j]])
+				C[R[i][j]] -= e;
+			if (!isConst[P[i][j]])
+				C[P[i][j]] += e;
+		}
+	}
+	iter++;
+	if (!listconc())
+		return 0;
+	if ((iter % nstep) == 0)
+		addpoints();
+	for (var i = 0; i < nv; i++)
+		T[i][n__] = C[Vlist[i]];
+	if ((iter % niter) == 0)
+		return going = false;
+	return (docontinue ? setTimeout('doloop(true)',1) : 0);
+}
+
+function addpoints()
+{
+ for(var i=0;i<nv;i++)
+ {
+  var e=C[Vlist[i]]
+  dT[i][n__]=e-T[i][n__]
+  T[i][n__]=e
+ }
+ nT[n__]=iter
+ if(iter)listrate()
+ n__++
+}
+
+function listconc() {
+	var s = "<table>";
+	for (var i = 0; i < nv; i++) {
+		var v = Vlist[i]; 
+		if (C[v] < 0) {
+			alert("d[" + v + "]/dt has gone too negative relative to [" + v + "] to continue the calculation.");
+			return false;
+		}
+		s += addconc(i);
+	}
+	if (K[0]) {
+		if (iter == 0)
+			initRun();
+		s += "<tr><td>&nbsp;</td></tr><td></td><td></td><td>Q = " + eval(Q[0]) + "</td></tr>";
+	}
+	s += "</table>";
+	document.getElementById("statusdiv").innerHTML = iter*dt + " seconds " + (n__ + 1) + " point" + (n__ == 0 ? "" : "s");
+	document.getElementById("concdiv").innerHTML = s;
+	if (iter == 0)
+		initRun();
+	listrate();
+	return true;
+}
+
+function addconc(i) {
+	var v = Vlist[i];
+	var e = C[v];
+	var n = Math.max(1, Math.round(e / maxc * 400));
+	return "<tr><td style='width:100px'>[" + v + "]</td>"
+		+ "<td style='width:200px'>" + e + "</td>"
+		+ "<td><img src='" + getColor(i)	+ ".gif' style='width:" + n + "px;height:10px' /></td>"
+		+ "</tr>"
+}
+
+function getMaxRate() {
+	maxr = 0;
+	for(var i = 0; i < neq; i++) {
+		maxr = Math.max(maxr, eval(rxnRate[i][0]));
+		if (k[i][1])
+			maxr = Math.max(maxr, eval(rxnRate[i][1]));
+	}		
+}
+
+function listrate() {
+	var s = "<table>";
+	for(var i = 0; i < nv; i++)
+ 		s += addrate(i, true);
+	s += "</table>";
+	document.getElementById("ratediv1").innerHTML = s;
+ 
+ 	s = "<table>";
+	for(var i = 0; i < neq; i++)
+ 		s += addrate(i, false);
+	s += "</table>";
+	document.getElementById("ratediv2").innerHTML = s;
+}
+
+function addrate(i, isChange) {
+	if (isChange) {
+		var r = dT[i][n__];
+		if (isNaN(r))
+			r = "?";
+		return "<tr><td style='width:100px'>d[" + Vlist[i] + "]/dt</td><td>" + (r != "?" && r >= 0 ? "+" : "") + r + "</td></tr>";
+	}
+	return formatRateLine(i, true) + (k[i][1] ? formatRateLine(i, false) : "");
+}
+
+function formatRateLine(i, isForward) {
+	var s= rxnRate[i][isForward ? 0 : 1];
+	var e = eval(s);
+	var n = Math.max(1, Math.round(e / maxr * 400));
+	return "<tr><td style='width:100px'>rate[" + (isForward ? "" : "-") + (i + 1) + "]</td>"
+		+"<td style='width:200px'>" + e + "</td>"
+		+"<td><img src='" + getColor(4 + i * 2 + (isForward ? 0 : 1)) 
+		+ ".gif' style='width:" + n + "px;height:10px' /></td></tr>"
+}	
+	
+
+function loadfilelist(mode)
+{
+ if(mode==0) return waitforload("loadfilelist(1)",parent.CALC_kdata,"./data") 
+ var slist="Mark the file you want to load\n by placing an 'x' after its name\n and pressing 'OK'\n"
+ for(var i=1;i<parent.CALC_kdata.document.links.length;i++)
+ {
+  var s=parent.CALC_kdata.document.links[i].href
+  s=s.substring(s.lastIndexOf("/")+1,s.length)+"----------"
+  slist+="./data/"+s.substring(0,12)+"\n"
+ }
+ usr.datarxn.value=slist
+ isfilelist=true
+ return 1
+}
+
+function showlist(slist,addlisting)
+{
+ var s=slist
+ s=strsub(s,"=?=","=")
+ s=strsub(s,"=?","=")
+ s=strsub(s,";","\n")
+ s=strsub(s,"\r","\n")
+ s=strsub(s,"\n\n","\n")
+ s=strsub(s,"'","")
+ while(s.indexOf("\n")==0)s=s.substring(1,s.length)
+ s+="//BOUNDS=("+BOUNDS+")\n"
+ if(addlisting && usr.optlist.checked)s+=dolist(0)
+ return s
+}
+
+function updatemainvlist()
+{
+ vlist=";"+usr.datavar.value
+ var s=vlist
+ var i=s.indexOf("//BOUNDS=")
+ BOUNDS=new Array(-1E199,1E199)
+ if(i>=0)eval("BOUNDS=new Array"+s.substring(i+9,s.length))
+ vlist=strsub(vlist,"\r","\n")
+ vlist=strsub(vlist,"\n",";")
+ vlist=mathclean(vlist)
+ vlist=strsub(vlist,";;",";")+"//"
+ vlist=vlist.substring(0,vlist.indexOf("//"))
+ if(istest)alert(vlist)
+ var Av=vlist.split(";")
+ for(var i=0;i<Av.length;i++)
+ {
+  var sa=Av[i]
+  if(sa.indexOf("?")<0)
+  {
+   if(sa.indexOf("=")>0 && sa.indexOf("=")<sa.length-1)
+   {
+    var AA=sa.split("=")
+    mainvlist=updatevlist(mainvlist,AA[0],AA[1],0)
+   }
+  }
+ }
+ eval(mainvlist)
+ return 0
+}
+function updatevlist(slist,svar,sval,usemain)
+{
+ var s=";"+svar+"="
+ var sr=(usemain?varvalue(mainvlist,s):sval)
+ if(usemain && sr.length && paramlist.indexOf(s)>=0)sr=(usemain==-2?"":sr+"=")
+ var sl=slist
+ var i=sl.lastIndexOf(s)
+ if (i<0)
+ {
+  sl+=s.substring(1,s.length)+sr+";"
+  return sl
+ }
+ sl=sl.substring(0,i)+s+sr+sl.substring(sl.indexOf(";",i+1),sl.length)
+ return sl
+}
+
+function doloadbody(mode)
+{
+ usr=document.info
+ if(!doloadit)return
+  usr.sdtype.selectedIndex=defdisplaytype
+  parseinfo()
+}
+
+function doBtn(sname) {
+	if(going){
+		going=false;
+		if (sname == "go")
+			return 0;
+	}
+	if(isfilelist || sname=="mech") return doselect("sdata")
+	switch (sname){
+	case "blur":
+		return (isfilelist ? 0 : parseinfo());
+	case "mech":
+ 		return (isfilelist ? doselect("sdata") : 0);
+	case "mech2":
+ 		return dogoto("#mechanism");
+ 	case "check": 
+	 	parseinfo();
+		return dogoto("#thedata");
+	case "rxnOK":
+		parseinfo();
+		return dogoto("#conc");
+	case "reset":
+		slistold = "";
+		return parseinfo();
+	case "go":
+		return dorun(iter);
+	case "gonext":
+		return dogoto("#graph");
+	case "plot":
+		if(!havedata)
+			parseinfo();
+		if(n__ == 0) {
+			dogoto("#conc");
+			return alert("No data to plot! Click on 'Start/Stop'")
+		}
+		usr.elements.tstitle1.value = (prompt("subtitle?",usr.elements.tstitle1.value) || "");
+		return dograph(0);
+	case "test":
+		return dotest(usr.itest.value);
+	default:
+		return 0;
+	}
+}
+function doselect(sname) {
+	var c = usr[sname];
+	var s=c[c.selectedIndex].value;
+	switch (sname) {
+	case "sdata":
+		if (s == "FILE") {
+			if (!isfilelist) 
+				return loadfilelist(0);
+			s = usr.datarxn.value;
+			var i = s.indexOf("-x");
+			if (i<0){
+				alert("File has not been selected.");
+				loadfilelist(0);
+				dogoto("#data");
+				return 0;
+			}
+			s = s.substring(0,i);
+			s = s.substring(s.lastIndexOf("./"),s.length);
+			filename = s.substring(0,s.indexOf("-"));
+			usr.sdata.options[usr.sdata.selectedIndex].text = filename + " (click 'OK' for file list)";
+			isfilelist = 0;
+			return waitforload("dodata(1)",parent.CALC_kdata,filename);
+		}
+		filename = s;
+		// fall through
+	case "squiz":
+		isfilelist = 0;
+		return waitforload("dodata(0)",parent.CALC_kdata,(islocal?"./data/":"") + filename);
+ }
+ return 0
+}
+
+
+function dodata(wasfilelist)
+{
+ if(btnlock)return
+ sinfo=""
+ sdefs=""
+ var c=parent.CALC_kdata.document.forms
+ if (c.length)
+ {  
+  var sa=findvalue(c[0],"action")
+  isquiz=(sa.length>0)
+  if(isquiz)eval(sa)
+  ans=strsub(findvalue(c[0],"sans"),";","\n")
+  hint=strsub(findvalue(c[0],"shint"),";","\n")
+  if(isfilelist || !(filename=="blank.htm") ||prompt("Erase data?","yes")=="yes")usr.datarxn.value=findvalue(c[0],"datarxn")
+  stitle=""
+  if(!isquiz)
+  {
+   stitle=findvalue(c[0],"stitle")
+   if (stitle=="")stitle=gettextof("sdata")
+   if(stitle.indexOf("(click")>=0)stitle=stitle.substring(0,stitle.indexOf("(click"))
+  }
+  var sinfo=strsub(findvalue(c[0],"sinfo"),"|","\n")
+  if(sinfo=="")sinfo=findvalue(c[0],"windataheader")
+  var sdefs=findvalue(c[0],"sdefs")
+  if(sdefs!="")
+  {
+   sdefs+=";"
+   if(mainvlist.indexOf(sdefs)<0)mainvlist+=";"+sdefs
+   sdefs=strsub(sdefs,"'","")
+   sdefs=strsub(sdefs,"=;",";")
+   eval(sdefs)
+  }
+	usr.tstitle.value=stitle
+ }
+ doBtn("reset")
+ if(sinfo+sdefs!="")alert("\n\n"+stitle+"\n\n"+sinfo+"\n\n"+sdefs)
+ btnlock=true
+ setTimeout('btnlock=false',200)
+}
+function varvalue(varlist,vdef)//vdef form is ";variable="
+{
+ var i=varlist.indexOf(vdef)
+ if(i<0)return "?"
+ return varlist.substring(i+vdef.length,varlist.indexOf(";",i+1))
+}
+
+
+function getinfo()
+{
+ sflags=""
+ for(var i=0;i<usr.elements.length;i++)
+ {
+  var e=usr.elements[i]
+  var s=e.name
+  var sreal=s.substring(1,s.length)
+  if(s.charAt(0)=="t")eval(sreal+"='"+e.value+"'")
+  if(s.charAt(0)=="s")eval(sreal+"='"+getselectof(s)+"'")
+  if(s.charAt(0)=="y" && e.checked)sflags+=" "+e.value
+  if(s.charAt(0)=="n" && !e.checked)sflags+=" "+e.value
+ }
+ if(usr.oxauto.checked)xlimits="from auto"
+ if(usr.oyauto.checked)ylimits="from auto"
+ isdt=(plot.charAt(0)=="d")
+ isvsc=(plot.indexOf("dcvsc")==0)
+ isln=(plot.charAt(0)=="l")
+ is1_c=(plot.charAt(0)=="1")
+ vscn=(plot.charAt(5)=="2"?2:1)
+ return true
+}
+
+
+</SCRIPT>
+</head>
+
+<body bgcolor=#FFFFFF onload='doloadbody(0)'>
+<form name=info>
+<table><tr><td>
+<a name="top">
+</a>
+<table><tr><td style='width:800px'>
+<center><h3>Mechanism-Based Kinetics Simulator</h3></center>
+With this web page you can simulate the kinetics of a reaction based on its mechanism.
+The idea is to:
+<ul>
+<li>write a <a href=#mechanism>mechanism</a> and, based on that, 
+</li><li>follow the course of <a href=#conc>concentrations</a> or
+<a href=#rates>rates of change</a> in concentration 
+of reactants, catalysts, intermediates, and products over time. 
+</ul>
+In addition, you can <a href=#graph>graph</a> many different relationships related to the reaction either for one species or for the whole set, including:
+
+<ul>
+<li>[X], ln[X], 1/[X], or d[X]/dt vs. time, and
+</li><li>d[X]/dt vs. time, [X], or [X]<sup>2</sup>
+</ul>
+<br />Questions to consider include:
+<ol>
+<li>How do the individual concentrations change over the course of the reaction? Which ones rise and which ones fall? Which ones start small, rise, then fall again?
+</li><li>Are the individual changes in concentration (d[X]/dt) related? How so? Are these exact, or only approximate correlations? Why would that be?
+</li><li>Is there a rate "constant" for the reaction? If so, how would you get its value?
+</ol>
+
+You can either select from a predefined mechanism or write your own. 
+At a minimum, indicate "&lt;==&gt;" for reversible steps 
+and <span>"---&gt;"</span> for irreversible steps. Clicking on 'check' will 
+fill in the rest of the needed values, at least with default values. 
+Blanks ARE important and represent the end of a formula. 
+So if you mean "Fe+2 <small>+</small> V+2" don't write "Fe+2+V+2". 
+The program isn't THAT smart! 
+Note that rate constants (k<small>n</small> and k<small>-n</small>) should be 
+between 0 and 1 here, as 'dt' is 1 second for this simulation, and larger numbers
+will result in too fast of a reaction. To indicate that a concentration should
+remain constant, add "(constant)" immediately after its value.
+<br />
+<br />
+Enjoy! - Bob Hanson
+</td></tr></table>
+<hr />
+<a name="mechanism">
+<br /><strong>Proposed Mechanism and Starting Conditions</strong>
+<br />
+</a>
+<a name="thedata">
+<script language=javascript>
+
+ s="<table>"
+ s+="<tr><td>Predefined Mechanisms:<td>"
+ s+="<tr><td>"+getdata()
+ s+=tablebtn("mech","OK",0)
+ s+="<tr><td nowrap valign=top>Proposed Mechanism:"
+ s+=" "+tablebtn("check","Check",0)
+ s+=" "+tablebtn("rxnOK","Next...",0)
+ s+="<tr><td rowspan=9 valign=top><textarea bgcolor=#FFFFFF  rows=10 cols=60 name=datarxn onBlur=doBtn('blur')>"
+ s+="A + B --> C  k1=0.02\n"
+ s+="[A]=0.1,[B]=1\n"
+ s+="</textarea bgcolor=#FFFFFF >"
+ s+="<td>"
+ s+="</table>"
+ document.write(s)
+</script>
+</a>
+</td></tr><tr><td>
+
+<a name="conc">
+<script language=javascript>
+s="<table><tr><td nowrap>"+tableinput(" step:","nstep",1,6,0)
+s+=tableinput(" end:","niter",100,6,0)
+s+=tableinput(" dt(sec):","dt","1.0",3,0)
+s+=" "+tablebtn("reset","Reset",0)
+s+=" "+tablebtn("go","Start/Stop",0)
+s+=" "+tablebtn("plot","Plot",0)
+s+="</td></tr></table></a>"
+document.write(s)
+</script>
+<div id=statusdiv>&nbsp;</div>
+<br /><strong>Concentrations:</strong>
+<br /></a>
+<div id='concdiv'></div>
+
+<a name="rates"><br /><strong>Reaction Rates</strong><br /></a>
+<table><tr><td rowspan=9 valign=top><div id='ratediv2'></div></td></tr></table></a>
+<br /><strong>Rates of Change</strong><br />
+<table><tr><td rowspan=9 valign=top><div id='ratediv1'></div></table></a>
+
+</td></tr><tr><td>
+
+
+<a name=graph>
+<br />
+<strong>Graphing Options</strong><br />
+<script language=javascript>
+var s="<table>"
+s+="<tr>"+tableinput("Main Title","stitle","",20,true)
+s+="<td colspan=2>"
+document.write(s)
+
+s='tableselect("Output:","dtype",defdisplaytype,"js","JavaScript","csv","Comma-Separated Values"'
+// isstolaf and dataserver long since abandoned 10/30/2014 7:07:31 AM
+if(isstolaf)s+=',"png","PNG","postscript","PostScript","table","Gnuplot Table"'
+if(dataserver.length)s+=',"wdt-r","application/x-windata (remote)","wdt-l","use application/x-windata (local)"'
+s+=')'
+s=eval(s)
+
+
+s+="<tr>"+tableinput("Subtitle","stitle1","",20,true)
+//s+=tablecheck("x-axis tics UP","xtics","XTICSUP",0,"y")
+s+=tablecheck("x-axis where Y=0","xaxis0","XAXIS0",1,"y")
+s+="</td><td>"+tableinput("randomness","rand","0.01",3,false)
+s+="<tr>"+tableinput("X-Axis Label","xlabel","",20,true)
+s+=tablecheck("x-axis numbers","xaxisnum","NOXNUMS",1,"n")
+s+=tablecheck("y-axis numbers","yaxisnum","NOYNUMS",1,"n")
+s+="<tr>"+tableinput("Y-Axis Label","ylabel","",20,true)
+s+=tablecheck("add trend line","trendline","DOTREND",0,"y")
+s+=tablecheck("connect points","connect","ALLLINES",0,"y")
+s+="<tr>"+tableinput("X-Range "+tablecheck("auto","xauto","",1,"o"),"xlimits",xlimits,20,true)
+s+="<td colspan=2>"+tableselect("Plot:","plot",0,
+ "cvst","[X] vs. time",
+ "lncvst","ln[X] vs. time",
+ "1_cvst","1/[X] vs. time",
+ "dcvst","d[X]/dt vs. time",
+ "dcvsc","d[X]/dt vs. [X]",
+ "dcvsc2","d[X]/dt vs. [X]^2"
+ )
+s+=tableselect("where X=","wherex",0,
+ "all","all...",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","",
+ "","")
+s+="<tr>"+tableinput("Y-Range "+tablecheck("auto","yauto","",1,"o"),"ylimits",ylimits,20,true)
+s+="<td colspan=2>"
+s+=tableinput("Width","swidth","500",3,false)
+s+=tableinput("Height","sheight","300",3,false)
+s+=tableinput("Start (sec):","pstart",0,3,0)
+s+="</table>"
+//s+="<br>Test Evaluation:<input type=text name=itest size=35 value=''>"+tablebtn("test","OK",0)
+document.write(s)
+s=""
+</script>
+</form>
+<a name=end>&nbsp;</a>
+</body>
+</html>

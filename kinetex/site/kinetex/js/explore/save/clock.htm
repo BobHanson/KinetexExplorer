@@ -1,0 +1,145 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=../common/symbols.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Simulate_init()
+>
+
+<script language=javascript>
+Simulate_sayh("clock")
+Model_createNew("rxn1")
+Model_setParameters("overallequation='2I_ + S2O8__ -slow-> I2 + 2SO4__<br>I2+ 2S2O3__ -fast-> 2I_ + S4O6__'")
+Model_addComponent("I_",1,"colorless")
+Model_addComponent("S2O8__",4,"colorless")
+Model_addComponent("S2O3__",1,"colorless")
+Model_addComponent("I2",0,"yellow")
+Model_addComponent("SO4__",0,"colorless")
+Model_addComponent("S4O6__",0,"colorless")
+Model_setOverallEquation("2I_ + S2O8__ --> I2 + 2SO4__")
+Model_setRateLaw("k[I_][S2O8__]")
+Model_setConstant("k",0.02)
+Model_setOverallEquation("I2 + 2S2O3__ --> 2I_ + S4O6__")
+Model_setRateLaw("k2[I2][S2O3__]")
+Model_setConstant("k2",infinity)
+Model_hideInfo("ratelaw,overall,k2,Temp,SO4__,S4O6__,I2")
+Model_fixInfo("Mech,Rate,k2")
+Model_setTemp(298)
+Model_select("I2,S2O3__")
+//Expt_setParameters("ismini=true")
+//Analysis_setParameters("ismini=true")
+
+//Data_setTarget("document.info.data")
+//Data_setParameters("dXdt=true")
+
+Graph_setBox(50,30,250,125)
+Graph_setTarget("mygraph")
+Graph_setYmax(1.2)
+//Graph_setParameters("mouseon=false")
+
+Analysis_hideInfo("rate")
+</script>
+
+
+<table xborder=3>
+
+<tr>
+<td valign=top>
+
+ <table xborder=2>
+<tr><td valign=top>
+<script language=javascript>Model_show("rxn1")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table xborder=1>
+  <tr>
+  <td colspan=2 valign=top><script language=javascript>Expt_show("rxn1")</script></td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+ </table>
+
+
+</td>
+<td valign=top>
+
+  <table xborder=1>
+  <tr>
+  <td width=100 valign=top><script language=javascript>Rxn_show("rxn1")</script></td>
+  <td width=200>
+	<h4><font color=blue>
+
+Before pressing Start, look closely at the two overall equations.
+I<sub>2</sub> is yellow; all the rest are colorless. 
+What is the effect of the second reaction being fast? 
+What is going to happen when we run out of thiosulfate (S<sub>2</sub>O<sub>3</sub><sup>2-</sup>)?
+Why might this reaction be called a "clock" reaction?
+
+
+</font></h4>
+  </td>
+  </tr>
+  <tr>
+  <td colspan=2 valign=top>
+<img src=gif/graph.gif width=400 height=180 name=mygraph>
+</td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+<tr>
+<td colspan=3>
+<script language=javascript>Data_show("rxn1")</script>
+</td>
+</tr>
+</table>
+
+<script language=javascript>
+
+Q_ask("Looking at the data table after starting the reaction, why doesn't the concentration of iodide (I<sup>-</sup>) change during the initial stage of the reaction?"
+,"Iodide is being regenerated in the second reaction as fast as it is being used in the first reaction.")
+Q_ask("Looking at the data table after starting the reaction, why doesn't the concentration of iodine (I<sub>2</sub>) increase during the initial stage of the reaction?"
+,"Iodine is being consumed in the second reaction as fast as it is being produced in the first reaction, so its concentration never increases.")
+Q_ask("Try doubling and halving the concentration of iodide (I<sup>-</sup>). What is the effect?"
+,"When the concentration of iodide is doubled, the reaction requires half the time to change color; when the concentration of iodide is halved, the reaction takes twice as long to change color.")
+Q_ask("What does that tell you about the order of the reaction with respect to iodide?","When the concentration of iodide is doubled, the reaction goes twice as fast, so the reaction is first order in iodide.")
+Q_ask("Try doubling the concentration of peroxodisulfate (S<sub>2</sub>O<sub>8</sub><sup>2-</sup>). What is the effect?"
+,"When the concentration of peoxodisulfate is doubled, the reaction requires half the time to change color.")
+Q_ask("What does that tell you about the order of the reaction with respect to peroxodisulfate?","When the concentration of peroxodisulfate is doubled, the reaction goes twice as fast, so the reaction is first order in peroxodisulfate.")
+Q_ask("Try doubling the concentration of thiosulfate (S<sub>2</sub>O<sub>3</sub><sup>2-</sup>). What is the effect?"
+,"When the concentration of thiosulfate is doubled, the reaction requires twice the time to change color.")
+Q_ask("What does that tell you about the order of the reaction with respect to thiosulfate?","Nothing! The rate of the reaction is zero order in thiosulfate. If you look closely when you change the concentration of thiosulfate, you will see that its rate of disappearance is not affected. Thiosulfate is simply the \"clock timer\" here. When thiosulfate runs out, the reaction starts to change color, because only then is there any significant amount of iodine (I2) in solution.")
+
+Q_ask("What is the form of the rate law for this reaction?","The rate law is \n\nreaction rate = k[I-][S2O8(2-)]")
+
+
+
+//can't show graph while in the table. MUST have a target for IE.
+Simulate_sayq()
+Graph_show("rxn1")
+</script>
+
+</body>

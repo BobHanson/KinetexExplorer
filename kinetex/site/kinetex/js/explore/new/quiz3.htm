@@ -1,0 +1,131 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Simulate_init(1)
+>
+
+<script language=javascript>
+Simulate_sayh("quiz3",isqonly)
+
+Model_createNew("rxn1")
+Model_addComponent("A",1,"blue")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A --> C||2A --> 2C||2A --> C")
+Model_setRateLaw("k||k[A]||k[A]^2")
+iszero=(ModelInfo["rxn1"].RateLaw[0]=="rate=k")
+isfirst=(ModelInfo["rxn1"].RateLaw[0]=="rate=k[A]")
+issecond=(ModelInfo["rxn1"].RateLaw[0]=="rate=k[A]^2")
+
+Model_setConstant("k",(Util_random_1_to(5)+1)/(iszero?100:20))
+Model_fixInfo("Overall")
+Model_select("A")
+Model_hideInfo("Temp,[C],[A],Rate Law,k")
+Model_setTemp(298)
+
+Graph_setImageSize(220,180)
+Graph_setBox(50,25,120,125)
+Graph_setTarget("mygraph")
+Graph_setKey("-")
+//Graph_setParameters("dotrendline=true")
+Graph_setParameters("xaxislabel='time<br>(sec)'")
+Graph_setParameters("dogridx=true|dogridy=true|ticwidth=1")
+
+kval=ModelInfo["rxn1"]["k"]
+aval=-ModelInfo["rxn1"].Component[0].coeff
+slope=(isfirst||iszero?-kval*aval:kval*aval)
+kunits=(iszero?" M/sec":isfirst?" /second":" M-1 sec-1")
+t12=(isfirst?Util_roundoff(Math.log(2)/kval/aval,1):"")
+
+
+Model_createNew("rxn2")
+Model_addComponent("A",1,"red")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation(ModelInfo["rxn1"].OverallEquation[0])
+Model_setRateLaw(ModelInfo["rxn1"].RateLaw[0])
+Model_setConstant("k",ModelInfo["rxn1"]["k"])
+Model_select("A")
+
+Model_setTemp(298)
+
+Graph_setImageSize(220,180)
+Graph_setBox(50,25,120,125)
+Graph_setTarget("mygraphln")
+Graph_setKey("-")
+//Graph_setParameters("dotrendline=true")
+Graph_setYtransform("ln(y)")
+Graph_setParameters("xaxisaty=-2|ymin=-2|ymax=0")
+Graph_setParameters("xaxislabel='time<br>(sec)'")
+Graph_setParameters("dogridx=true|dogridy=true|ticwidth=1")
+
+
+
+Model_createNew("rxn3")
+Model_addComponent("A",1,"black")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation(ModelInfo["rxn1"].OverallEquation[0])
+Model_setRateLaw(ModelInfo["rxn1"].RateLaw[0])
+Model_setConstant("k",ModelInfo["rxn1"]["k"])
+Model_select("A")
+
+Model_setTemp(298)
+
+Graph_setImageSize(220,180)
+Graph_setBox(50,25,120,125)
+Graph_setTarget("mygraphinv")
+Graph_setKey("-")
+//Graph_setParameters("dotrendline=true")
+Graph_setYtransform("1/y")
+Graph_setParameters("ymin=0|ymax=10")
+Graph_setParameters("yticminor=1|yticmajor=2|xaxislabel='time<br>(sec)'")
+Graph_setParameters("dogridx=true|dogridy=true|ticwidth=1")
+
+Graph_setParameters("mouseon=false")
+
+</script>
+
+
+<script language=javascript>
+
+Model_show("rxn1")
+</script>
+
+<img name=mygraph src=gif/graph.gif width=220 height=180>
+<img name=mygraphln src=gif/graph.gif width=220 height=180>
+<img name=mygraphinv src=gif/graph.gif width=220 height=180>
+<table width=600>
+<tr><td>
+<script language=javascript>
+autostart=true
+Q_ask("Which graph most closely fits a straight line?","The "+(iszero?"first":isfirst?"middle":"third")+" graph most closely fits a straight line.")
+Q_ask("What is the order of this reaction?","This is a "+(iszero?"zero-":isfirst?"first-":"second-")+"order reaction.")
+Q_ask("What is the slope of the best-fit line?",(iszero?"On the graph of [X] vs. time,":isfirst?"On the graph of ln[X] vs. time,":"On the graph of 1/[X] vs. time,")+" the slope is "+slope+kunits)
+Q_ask("How is the rate constant <i>k</i> related to slope in this case?",(iszero?"On the graph of [X] vs. time, slope = -ka":isfirst?"On the graph of ln[X] vs. time, slope = -ka":"On the graph of 1/[X] vs. time, slope = ka")+", where \"a\" in this case is "+aval)
+Q_ask("What is the value of the rate constant for this reaction?","For this reaction "+(iszero||isfirst?"-k":"k")+(aval!=1?"("+aval+")":"")+" = "+slope+kunits+". So k = "+kval+kunits+". "+(aval!=1?"\n\n(Note that the coefficient of A in the overall chemical equation is "+aval+" in this case,\nso the value of k is smaller than it otherwise would be.":""))
+Q_ask("Is the half-life of this reaction constant?",(isfirst?"Yes, the half-life in this case is "+t12+" seconds. Checking half-lives is another way of spotting a first-order reaction and determining the value of the rate constant k.":"No."))
+
+Simulate_sayq("quiz3",isqonly)
+
+</script>
+</td></tr></table>
+<script language=javascript>
+Graph_showAll()
+</script>
+
+</body>

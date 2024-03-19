@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>Example i6: data plotter with title-based feedback</title>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript>
+
+function adddata(T,k){
+ var s=document.examplei6.data.value
+ document.examplei6.data.value=s+(s?"\n":"")+T+" , "+k
+}
+
+
+function doexample(){
+ var sdata=document.examplei6.data.value
+ if(sdata.indexOf(",")<0){
+	alert("X,Y Data must be separated by commas.")
+	return
+ }
+ GRopengraphwindow(600,300,50,50)
+ Info=new Array()
+ Info.graphwidth=500,Info.graphheight=200
+ Info.graphleft=Info.graphtop=50
+ Info.ptsize=8
+ Info.linewidth=2
+ Info.docurve=document.examplei6.curve[0].checked
+ Info.dotrendline=document.examplei6.trend[0].checked
+ Info.trendlabelx=300
+ Info.trendlabely=-40
+ Info.doxticnums=Info.doyticnums=true
+ Info.dogridx=Info.dogridy=true
+ Info.xaxislabelx=Info.xaxislabely=NaN
+ Info.ticwidth=1
+ Info.imagedir="../common"
+ Info.ptsize=8
+ Info.xvar=document.examplei6.xvar.value
+ Info.yvar=document.examplei6.yvar.value
+ fx=document.examplei6.horiz[document.examplei6.horiz.selectedIndex].text
+ fy=document.examplei6.vert[document.examplei6.vert.selectedIndex].text
+ Info.datatransform=fy +" vs. "+fx
+ Info.title="<a href=javascript:close()>Close</a>"
+ GRdrawgraph(sdata,"","",Info)
+ GRclosegraphdocument()
+
+}
+
+
+</script>
+</head>
+<body>
+<form name=examplei6>
+
+x= <input type=text value=' T_Kelvin' name=xvar size=10>
+,
+y= <input type=text value=' k' name=yvar size=10>
+<br>
+Add data to the textbox below, separating values by commas.
+<textarea name=data rows=8 cols=30>
+</textarea>
+<br>
+Vertical Axis:
+<select name=vert>
+<option>y
+<option>ln(y)
+<option>1/y
+</select>
+<br>Horizontal Axis:
+<select name=horiz>
+<option>x
+<option>1/x
+</select>
+<br>
+Do you want to add a curve<br>through the points?
+<input type=radio name=curve value='yes'>yes 
+<input type=radio name=curve value='no' checked>no 
+<br>
+Do you want a trend line?
+<input type=radio name=trend value='yes' checked>yes 
+<input type=radio name=trend value='no'>no 
+<br>
+<br>
+</form>
+<a href=javascript:doexample()>Graph</a>
+</body></html>

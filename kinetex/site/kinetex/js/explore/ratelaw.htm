@@ -1,0 +1,77 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Model_init();
+>
+<script language=javascript>
+Explore_sayh("ratelaw",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("2A + B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.3)
+Model_setTemp(298)
+Model_hideInfo("Temp")
+Model_select("ABC")
+Expt_setEndTime(20)
+Expt_setParameters("ismini=true")
+Data_setRows(7)
+Data_setParameters("dXdt=true")
+Graph_setYmax(1)
+Graph_setBox(0,35,0,100)
+//Graph_setImageSize(0,150)
+Graph_setParameters("yticminor=0.05|yticmajor=0.2|xaxislabel='time (sec)'")
+Graph_setTarget("rxn1graph")
+</script>
+<table width=600>
+<tr><td>
+<table width=700>
+<tr>
+<td width=200><script language=javascript>Model_show("rxn1")</script></td>
+<td width=500>
+Rates of Change in [X]
+<script language=javascript>Data_show("rxn1")</script>
+</td></tr>
+<tr>
+<td width=200><script language=javascript>Analysis_show("rxn1")</script></td>
+<td width=500><img src=gif/graph.gif width=480 height=170 name=rxn1graph></td>
+</tr>
+</table>
+</td></tr>
+<tr><td>
+<script language=javascript>
+Q_ask("Try decreasing <i>k</i> by a factor of 10. What is the effect?"
+,"The rate of formation of C also decreases by a factor of 10. The reaction goes ten times slower.")
+Q_ask("Try increasing the initial concentration of A. What is the effect on d[C]/dt?"
+,"When the initial concentration of A increases, d[C]/dt increases, as long as [A] is in the rate law.")
+Q_ask("Try the rate law \"rate=k[B]\" with k=0.01. See hat happens now to d[C]/dt when you change the initial concentration of A."
+,"If [A] is not in the rate law, then the reaction is \"zero order in A,\" and there is no effect of changing [A].")
+Q_ask("Try changing the coefficients of the overall chemical equation. What do you notice about the initial rates of change in concentration of reactants and products?"
+,"The initial rates of change in concentration of reactants are negative and proportional to their coefficients in the overall chemical equation. "
++"The initial rates of change in concentration of products are also proportional to their coefficients in the overall chemical equation. ") 
+
+Explore_sayq("ratelaw",isqonly)
+</script></td>
+</td></tr>
+</table>
+<script language=javascript>Graph_show("rxn1",true)</script>
+</body>

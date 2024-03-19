@@ -1,0 +1,175 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+<script language=javascript src=debug.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Simulate_init(-1);
+>
+
+<script language=javascript>
+Simulate_sayh("ratelaw1",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1,"colorless")
+Model_addComponent("C",0,"red")
+
+Model_setOverallEquation("A + B --> C||A + 2B --> C||2A + B --> C||2A + 2B --> C")
+Model_setRateLaw("k[A][B]||k[A]||k[B]||k[A]^2[B]||k[A][B]^2||k[A]^2[B]^2")
+
+Model_setConstant("k",(Util_random_1_to(5)+1)/50)
+Model_fixInfo("Rate,Overall")
+Model_hideInfo("[C]o,Temp")
+//Model_queryInfo("Rate Law,k")
+Model_select("A")
+Model_setTemp(298)
+
+Expt_setEndTime(20)
+
+Graph_setBox(50,25,450,125)
+Graph_setTarget("mygraph")
+Graph_setParameters("keyx=-10|keyy=-20")
+Graph_setKey("blue=[A]#1;red=[A]#2")
+Graph_setYmax(1.2)
+
+Model_createNew("rxn2")
+Model_addComponent("A",1,"red")
+Model_addComponent("B",1,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation(ModelInfo["rxn1"].OverallEquation[0])
+Model_setRateLaw(ModelInfo["rxn1"].RateLaw[0])
+Model_setConstant("k",ModelInfo["rxn1"].k)
+Model_fixInfo("Rate,Overall")
+Model_hideInfo("[C]o,Temp")
+//Model_queryInfo("Rate Law,k")
+Model_select("A")
+Model_setTemp(298)
+
+Graph_setTarget("rxn1")
+Graph_setKey("-")
+Graph_setParameters("keyx=-10|keyy=-20")
+
+Expt_setEndTime(20)
+
+</script>
+
+
+<table cellspacing=0 cellpadding=0>
+<tr>
+<td>
+
+ <table>
+<tr><td>
+<h4><font color=blue>Reaction #1</font></h4>
+<script language=javascript>Model_show("rxn1")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table>
+<tr>
+  <td valign=top><script language=javascript>Expt_show("rxn1")</script></td>
+  <td valign=top>
+ <script language=javascript>Analysis_show("rxn1")</script>
+ </td>
+  <td valign=top>
+
+
+ </td>
+
+</tr>
+  </table>
+
+</td>
+</tr>
+ </table>
+
+</td>
+<td>
+
+ <table>
+<tr><td>
+<h4><font color=red>Reaction #2</font></h4>
+<script language=javascript>Model_show("rxn2")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table>
+<tr>
+  <td valign=top><script language=javascript>Expt_show("rxn2")</script></td>
+  <td valign=top>
+ <script language=javascript>Analysis_show("rxn2")</script>
+ </td>
+</tr>
+  </table>
+
+</td>
+  <td valign=top>
+
+
+ </td>
+</tr>
+ </table>
+
+</td>
+</tr>
+<tr>
+<td colspan=2><img src=gif/graph.gif width=600 height=180 name=mygraph></td>
+</tr>
+</table>
+
+<script language=javascript>
+function setv(k1,a1,b1,k2,a2,b2){
+	document.model_rxn1.k.value=k1
+	document.model_rxn1.A.value=a1
+	document.model_rxn1.B.value=b1
+	document.model_rxn2.k.value=k2
+	document.model_rxn2.A.value=a2
+	document.model_rxn2.B.value=b2
+	Model_refreshAll(true)
+	Expt_startAll()
+}
+
+Q_ask("Compare the initial rates when all parameters are the same except <a href=javascript:setv(.08,.5,1,.08,1,1)>the initial concentration of A is either 0.5 M or 1.0 M.</a> "
+	+"What do we learn from this pair of experiments about the exponent for [A] in the rate law?"
+	,"The answer to this question depends upon the rate law.")
+Q_ask("Compare the initial rates when all parameters are the same except <a href=javascript:setv(.08,1,0.5,.08,1,1)>the initial concentration of B is either 0.5 M or 1.0 M.</a> "
+	+"What do we learn from this pair of experiments about the exponent for [B] in the rate law?"
+	,"The answer to this question depends upon the rate law.")
+Q_ask("Try looking at different data points. Does the same analysis work at points later in the reaction, other than the initial point?"
+	,"No. As the reaction proceeds, both [A] and [B] decrease. The success of the analysis depends upon holding everything except ONE factor in the rate law constant. This analysis must be carried out only for the initial rates.")
+Q_ask("How are the exponents in the rate law related to the coefficients in the overall chemical equation chosen to represent the reaction?"
+	,"There is no relation between the exponents in the rate law and the coefficients in the overall chemical equation chosen to represent the reaction.")
+Q_ask("How can this information be used to get the value of <i>k</i>?"
+	,"The value of k can be determined by the process outlined below. ")
+Q_ask("What are the units of <i>k</i> in this rate law?"
+	,"The units of <i>k</i> have to be such that, overall, the right-hand side has units of mole/liter/second.")
+
+Simulate_sayq("ratelaw1",isqonly)
+
+//can't show graph while in the table. MUST have a target for IE.
+Graph_showAll()
+//Data_show("rxn1")
+//Data_show("rxn2")
+
+</script>
+
+</body>

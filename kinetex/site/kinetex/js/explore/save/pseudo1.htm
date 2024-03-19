@@ -1,0 +1,58 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Simulate_init();
+
+>
+
+<hr>
+[B] set very high ensures first-order kinetics<br>
+even though the rate law is rate=k[A][B].
+
+
+<script language=javascript>
+Model_createNew("flood")
+Model_addComponent("A",6,"blue")
+Model_addComponent("B",20,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.01)
+Model_setTitle("In this case [B] is very large; first-order kinetics.")
+Graph_setImageSize(800,300)
+Graph_setBox(0,0,700,200)
+Graph_setYmax(10)
+Expt_setTemp(300)
+</script>
+<table><tr><td width=200>
+<script language=javascript>Expt_show()</script>
+</td><td width=200>
+<script language=javascript>Rxn_show()</script>
+</td><td width=200>
+<script language=javascript>Data_show()</script>
+</td></tr>
+</table>
+<script language=javascript>Graph_show()</script>
+
+
+
+
+
+
+</body>

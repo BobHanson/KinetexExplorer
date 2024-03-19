@@ -1,0 +1,109 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Simulate_init(-1);
+
+>
+
+<script language=javascript>
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> C||A + 2B --> C||2A + B --> C||2A + 2B --> C")
+Model_setRateLaw("k[A][B]||k[A][B]^2||k[A]||k[B]||k[A]^2||k[B]^2")
+Model_setConstant("k",(Util_random_1_to(5)+1)/10)
+Model_hideInfo("[C]<sub>o</sub>,Temp (Kelvin)")
+Model_fixInfo("Overall")
+//Model_queryInfo("Rate Law,k")
+Model_select("AC")
+
+Model_setTemp(298)
+
+Graph_setImageSize(600,180)
+Graph_setBox(50,25,500,125)
+Graph_setTarget("mygraph")
+Graph_setParameters("keyx=-10|keyy=-20")
+Graph_setKey("blue=[A];red=[C]")
+Graph_setYmax(1.2)
+
+Analysis_hideInfo("rate")
+</script>
+
+
+<table cellspacing=0 cellpadding=0 xborder=3>
+<tr>
+<td colspan=3>
+<h4><font color=blue>Comparing reaction rates.</font></h4>
+Change concentrations, start the reaction, and compare initial rates.
+</td>
+</tr>
+
+<tr>
+<td>
+
+ <table xborder=2>
+<tr><td>
+<script language=javascript>Model_show("rxn1")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table xborder=1>
+<tr>
+  <td valign=top>
+ <script language=javascript>
+  Analysis_show("rxn1")
+</script>
+ </td>
+</tr>
+  </table>
+
+</td>
+</tr>
+
+ </table>
+
+
+</td>
+<td>
+<script language=javascript>
+Data_show("rxn1")
+</script>
+<form>
+<textarea rows=5 cols=35>
+In this reaction B is colorless,
+so its concentration change isn't
+visible. Try various ideas to 
+slow the reaction down or speed it up.
+</textarea></form>
+</td>
+</tr>
+
+<tr>
+<td colspan=3><img src=gif/graph.gif width=600 height=180 name=mygraph></td>
+</tr>
+</table>
+
+<script language=javascript>
+//can't show graph while in the table. MUST have a target for IE.
+Graph_show("rxn1")
+</script>
+
+</body>

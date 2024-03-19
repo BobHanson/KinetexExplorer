@@ -1,0 +1,70 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Simulate_init();
+>
+
+<script language=javascript>
+Simulate_sayh("tiny7",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1/1.414,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("2A + B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.3)
+Model_setTemp(298)
+Expt_setEndTime(20)
+Model_select("ABC")
+Analysis_hideInfo("rate")
+Graph_setYmax(1)
+Graph_setParameters("yticminor=0.05|yticmajor=0.2|xaxislabel='time (sec)'")
+Graph_setTarget("rxn1graph")
+</script>
+<table width=700>
+<tr><td>
+<table>
+<tr>
+<td width=300><script language=javascript>Analysis_show("rxn1",true)</script></td>
+<td width=400><img src=gif/graph.gif  name=rxn1graph></td>
+</tr>
+</table>
+</td></tr>
+<tr><td>
+<script language=javascript>
+Q_ask("This reaction is associated with the overall equation 2A + B --> C. From the graph, how can you tell that the coefficient of A in the chemical equation is not the same as the coefficient of B?"
+,"The concentrations of A and B both decrease with time, but the concentration of B decreases more slowly than the concentration of A. So their coefficients in the chemical equation for the reaction must not be the same.")
+Q_ask("Click on the point on the graph representing the concentration of A after 2 seconds. The triangle shown on the left represents the rate of change in [A] (slope of the curve, in moles/liter/second) at that time. Is it positive or negative? Why?"
+,"The rate of change in [A] is negative. That's because A is a reactant. Its concentration is decreasing.")
+Q_ask("Click on the point on the graph representing the concentration of B after 2 seconds. What is the relationship between the rate of change in [A] and the rate of change in [B] at this time. What does this tell you about the coefficient of B in the chemical equation for this reaction?"
+,"The rate of change in [B] is the half the rate of change in [A] throughout the reaction. (Both are negative, but the value for A is twice the value for B.) So the coefficient of B in the chemical equation must be half that for A.")
+Q_ask("How can we tell that the reaction is slowing down with time?",
+"All the curves initially have steep slopes, but this slope approaches 0 as the reaction proceeds.")
+
+Simulate_sayq("tiny7",isqonly)
+
+</script>
+
+</td>
+</td></tr>
+</table>
+<script language=javascript>Graph_show("rxn1",true)</script>
+
+</body>

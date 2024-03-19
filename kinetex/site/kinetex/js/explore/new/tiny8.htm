@@ -1,0 +1,68 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Simulate_init();
+>
+
+<script language=javascript>
+Simulate_sayh("tiny8",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1/1.414,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.3)
+Model_setTemp(298)
+Expt_setEndTime(20)
+Model_select("ABC")
+Analysis_hideInfo("rate")
+Graph_setYmax(1)
+Graph_setParameters("yticminor=0.05|yticmajor=0.2|xaxislabel='time (sec)'")
+Graph_setTarget("rxn1graph")
+</script>
+<table width=700>
+<tr><td>
+<table width=700>
+<tr>
+<td width=300><script language=javascript>Analysis_show("rxn1",true)</script></td>
+<td width=400><img src=gif/graph.gif  name=rxn1graph></td>
+</tr>
+</table>
+</td></tr>
+<tr><td>
+<script language=javascript>
+Q_ask("Click on the first points on the graph for the concentrations of A and B. What is the relationship between the initial rate of change in [A] and the initial rate of change in [B]. What does this tell you about the coefficient of B in the chemical equation for this reaction?"
+,"The initial rate of change in [B] is the same as the initial rate of change in [A]. (Both are negative.) So the coefficient of B in the chemical equation must be the same as that for A.")
+Q_ask("Compare the rate of change in [A] initially to the rate in change in [A] after 10 seconds.",
+"The \"instantaneous\" rate of change in [A] (-0.013 mol/L/sec) is about one tenth the initial rate of change in [A](-0.11 mol/L/sec).")
+Q_ask("Provided [A] initially is 0.50 M and [A] after 10 seconds is 0.13 M, what is the \"average\" rate of change in [A] during this period?",
+"The average rate of change in [A] over the first 10 seconds of the reaction is (0.13 - 0.50)/10 = -0.037 mol/L/sec.")
+
+Simulate_sayq("tiny8",isqonly)
+
+</script>
+
+</td>
+</td></tr>
+</table>
+<script language=javascript>Graph_show("rxn1",true)</script>
+
+</body>

@@ -1,0 +1,58 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Model_init();
+>
+
+
+<script language=javascript>
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1/1.414,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + B --> 2C")
+Model_setRateLaw("k[A][B]2")
+Model_setConstant("k",0.3)
+Model_setTemp(298)
+Expt_setEndTime(20)
+Model_select("C")
+
+</script>
+<table width=600>
+<tr><td>
+The reaction going on in the flask is based on the equation A + B --> 2C.
+<table>
+<tr>
+<td width=200><script language=javascript>Rxn_show("rxn1")</script></td>
+<td width=200><script language=javascript>Data_show("rxn1")</script></td>
+</tr><tr>
+<td colspan=2><p><a href=javascript:Expt_startAll()>Start the reaction</a></td>
+</tr>
+</table>
+</td></tr>
+<tr><td>
+<script language=javascript>
+Q_ask("Looking at the data, how can you tell that the equation for this reaction <br>is A + B --> 2C, not A + 2B --> C?"
+,"Although A and B start at different concentrations, they both decrease by the same amount in a given time. For example, in the first reaction, both A and B decrease by about 0.064 mole/liter. Thus, their coefficients in the equation must be the same. In this same time period, [C] increases by twice that amount, 0.128 mole/liter. So the coefficient of C in the equation must be twice the coefficient of either A or B. The correct equation is A + B --> 2C. (Equally correct would be 2A + 2B --> 4C.)")
+</script></td>
+</td></tr>
+</table>
+
+</body>

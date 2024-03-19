@@ -1,0 +1,204 @@
+<html>
+<head>
+<title></title>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=explore.js></script>
+<script language=javascript>
+
+if(top==self)location="quiz4.htm"
+
+//note--here we have the graphing completely independent of the calculation.
+
+function createnew(){
+  Model_createNew("rxn1")
+  Model_addComponent("A",(Util_random_1_to(100)+50)/150,"blue")
+  Model_addComponent("C",0,"red")
+  Model_setOverallEquation(aval+"A --> C")
+  Model_setRateLaw("k||k[A]||k[A]^2")
+
+ iszero=(ModelInfo["rxn1"].RateLaw[0]=="rate=k")
+ isfirst=(ModelInfo["rxn1"].RateLaw[0]=="rate=k[A]")
+ issecond=(ModelInfo["rxn1"].RateLaw[0]=="rate=k[A]^2")
+ kunits=(iszero?" M":isfirst?"":" M<sup>-1</sup>")+" sec<sup>-1</sup>"
+
+  Model_setConstant("k",(Util_random_1_to(100)+50)/500)
+  Model_select("A")
+  Model_setTemp(298)
+//remove comment to debug//  Data_setTarget("document.info.data")
+  Expt_setRandomError(0.01)
+  Expt_setNotify(getsdata)
+  Simulate_init()
+  Expt_start()
+ 
+}
+
+//function getsdata is called by expt.js when cycling 
+function getsdata(what,smodel){
+ if(what!="done")return
+ var s=""
+ var sval=""
+ var nzero=0
+ for(var i=0;i<DataInfo["rxn1"].Data.length;i+=2){
+	sval=Util_roundoff(DataInfo["rxn1"].Data[i][0],3)
+	if(parseFloat(sval)<=0)break
+	s+=Util_roundoff(DataInfo["rxn1"].Data[i][2],0)
+	s+="\t,"+Util_flushRight(sval,10)
+	s+="\n"
+ }
+ if(i<10){
+	setTimeout("getanother()",10)
+	return
+ }
+ document.info.data.value=s
+ dograph()
+}
+
+function getanother(idelete){
+  document.info.data.value="The experiment is\nbeing run.\nPlease stand by."
+  parent.fraKG.document.open()
+/*
+  var s="<pre>\n\n\n\n\n\n</pre>"
+	+"<blockquote>Remember: Before jumping to graph the data, take a look at the numbers and see if you can spot two half lives. "
+	+"Then,<ul>"
+	+"<li>If the half-lives get shorter and shorter, then this is probably <b>zero-order kinetics</b>."
+	+"<li>If the half-lives are evenly spaced, this is probably "
+	+"<b>first-order kinetics</b>. "
+	+"<li>If the half-lives increase with time, then this is probably "
+	+"<b>second-order kinetics</b>."
+	+"<li>If the reaction has only gone a short way, and there is no half-life evident, probably more than one order will fit the data."
+	+"</ul>See if you can get the correct plot the FIRST time. Then check that the others are not as good fits.</blockquote>"
+
+  parent.fraKG.document.write(s)
+*/
+  parent.fraKG.document.close()
+  parent.fraKX.document.open()
+  parent.fraKX.document.write("")
+  parent.fraKX.document.close()
+  createnew()  
+}
+
+function dograph(){
+ GRopengraphframe(parent.fraKG)
+ Info=new Array()
+ Info.graphleft=Info.graphtop=50
+ Info.ptsize=4
+ Info.imagedir="../common"
+ Info.linewidth=2
+ Info.docurve=document.info.curve[0].checked
+ Info.dotrendline=document.info.trend[0].checked
+ Info.trenddigits=3
+ Info.style=".trendeqn {font-size:10pt}"
+ Info.trendlabelx=40
+ Info.trendlabely=250
+ Info.yvar="[NO2]"
+ Info.xvar="time"
+ fx="x"
+ fy=(document.info.vert[0].checked?"y":document.info.vert[1].checked?"ln(y)":"1/y")
+ Info.datatransform=fy +" vs. "+fx
+ sdata=document.info.data.value
+ sdata=sdata.replace(/ /g,"").replace(/\t/g,",").replace(/,,/g,",")
+ GRdrawgraph(sdata,"","",Info)
+ GRclosegraphdocument()
+}
+
+function showanswer(){
+ var s="<center>"
+ s+=ModelInfo["rxn1"].RateLaw[0]+"<p>"
+ s+="k = "+(ModelInfo["rxn1"].k*aval)+"/a = "+ModelInfo["rxn1"].k+kunits+"<p>where \"a\" is NO<sub>2</sub>'s coefficient<br>in the overall chemical equation,<br>which in this case is "+aval
+ s+="</center>"
+ s=s.replace(/\[A\]/g,"[NO<sub>2</sub>]")
+ var i=s.indexOf("^")
+ while(i>0){
+	s=s.substring(0,i)+"<sup>"+s.substring(i+1,i+2)+"</sup>"+s.substring(i+2,s.length)
+	i=s.indexOf("^")
+ }
+  parent.fraKX.document.open()
+  parent.fraKX.document.write(s)
+  parent.fraKX.document.close()
+
+}
+
+function check(which) {
+    var s = "No, that's not it!";
+    if (GR.L.r2 > 0.99) {
+        if (which == "i5") {
+            s = "Very good! Yes, the data are 2nd order kinetics, so a plot of 1/[X] vs. time does the trick.";
+        }
+        if (which == "i6") {
+            s = "Very good! " + (Info.xvar == "T_Kelvin" &&
+                Info.yvar == "k" && Info.datatransform == "ln(y) vs. 1/x" ? "Yes, by plotting ln(k) vs. 1/T(Kelvin) we can get the activation energy, because the slope is -Ea/R. In this case the slope is " + GR.L.m + " so Ea is " + GRroundoff(-GR.L.m * 0.0083145, 1) + " kJ/mol.K." : "");
+        }
+    }
+    GRalert(s);
+}
+
+
+</script>
+</head>
+<body onload=createnew()>
+<table><tr><td colspan=3>
+<script language=javascript>
+Simulate_sayh("quiz4",isqonly)
+</script>
+The textbox below should automatically load with
+a set of fictitious data arising from the hypothetical reaction."<script language=javascript>
+aval=(Math.random()>.5?2:1)
+document.write(aval>1?aval:"")
+</script>NO<sub>2</sub> --> products." By plotting
+the data different ways, see if you can
+determine the rate law and the rate constant.
+</td>
+</tr></table>
+<p>
+<form name=info>
+time (sec) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[NO2]
+<br>
+<textarea name=data rows=5 cols=30>
+If data do not appear here
+in a few moments, 
+try reloading the page
+</textarea>
+<br>
+<table>
+<tr>
+<td>
+Y-Axis:
+</td><td colspan=2>
+<input type=radio name=vert value='y' checked>[NO2]
+<input type=radio name=vert value='ln(y)'>ln[NO2]
+<input type=radio name=vert value='1/y'>1/[NO2]
+</td>
+</tr><tr>
+<td>
+Do you want to add a curve<br>through the points?
+</td><td>
+<input type=radio name=curve value='yes'>yes 
+<input type=radio name=curve value='no' checked>no 
+</td><td>
+<a href=javascript:dograph()>Graph</a>
+</td>
+</tr><tr>
+<td>
+Do you want a trend line?
+</td><td>
+<input type=radio name=trend value='yes' checked>yes 
+<input type=radio name=trend value='no'>no 
+</td><td>
+<a href=javascript:showanswer()>Show Answer</a>
+</td></tr></table>
+<center>
+<p>
+<input type=button value=Another onclick=getanother()>
+</center>
+</form>
+
+<script language=javascript>Simulate_sayq()</script>
+
+</body></html>

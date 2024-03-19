@@ -1,0 +1,136 @@
+<html>
+<head>
+<title>Example i6: data plotter with title-based feedback</title>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript>
+
+function doexample(){
+ GRopengraphwindow(600,300,50,50)
+ Info=new Array()
+ Info.graphwidth=500,Info.graphheight=200
+ Info.graphleft=Info.graphtop=50
+ Info.ptsize=4
+ Info.linewidth=2
+ Info.docurve=document.examplei6.curve[0].checked
+ Info.dotrendline=document.examplei6.trend[0].checked
+ Info.trendlabelx=300
+ Info.trendlabely=-40
+ Info.doxticnums=Info.doyticnums=true
+ Info.dogridx=Info.dogridy=true
+ Info.xaxislabelx=Info.xaxislabely=NaN
+ Info.ticwidth=1
+ Info.imagedir="../common"
+ Info.ptsize=document.examplei6.ptsize[document.examplei6.ptsize.selectedIndex].text
+ Info.defaultcolor=document.examplei6.dcolor[document.examplei6.dcolor.selectedIndex].text
+ Info.curvecolor=Info.trendcolor=document.examplei6.ccolor[document.examplei6.ccolor.selectedIndex].text
+ Info.xvar=document.examplei6.xvar.value
+ Info.yvar=document.examplei6.yvar.value
+ fx=document.examplei6.horiz[document.examplei6.horiz.selectedIndex].text
+ fy=document.examplei6.vert[document.examplei6.vert.selectedIndex].text
+ Info.datatransform=fy +" vs. "+fx
+ Info.title=(Info.dotrendline?"<center><a href=\"javascript:opener.check('i6')\">Check</a>":"")+"  <a href=javascript:close()>Close</a>"
+ GRdrawgraph(document.examplei6.data.value,"","",Info)
+ GRclosegraphdocument()
+
+}
+
+function check(which) {
+    var s = "No, that's not it!";
+    if (GR.L.r2 > 0.99) {
+        if (which == "i5") {
+            s = "Very good! Yes, the data are 2nd order kinetics, so a plot of 1/[X] vs. time does the trick.";
+        }
+        if (which == "i6") {
+            s = "Very good! " + (Info.xvar == "T_Kelvin" &&
+                Info.yvar == "k" && Info.datatransform == "ln(y) vs. 1/x" ? "Yes, by plotting ln(k) vs. 1/T(Kelvin) we can get the activation energy, because the slope is -Ea/R. In this case the slope is " + GR.L.m + " so Ea is " + GRroundoff(-GR.L.m * 0.0083145, 1) + " kJ/mol.K." : "");
+        }
+    }
+    GRalert(s);
+}
+
+
+</script>
+</head>
+<body>
+<form name=examplei6>
+
+<input type=text value='T_Kelvin' name=xvar size=10>,
+ <input type=text value='k' name=yvar size=10>
+<br><textarea name=data rows=8 cols=30>
+ 600  ,  0.028
+ 650  ,  0.22
+ 700  ,  1.3
+ 750  ,  6.0
+ 800  ,  23
+</textarea>
+<br>
+Vertical Axis:
+<select name=vert>
+<option>y
+<option>y^2
+<option>y^3
+<option>sqrt(y)
+<option>ln(y)
+<option>1/y
+<option>1/y^2
+</select>
+<br>Horizontal Axis:
+<select name=horiz>
+<option>x
+<option>x^2
+<option>x^3
+<option>sqrt(x)
+<option>ln(x)
+<option>1/x
+<option>1/x^2
+</select>
+<br>
+Do you want to add a curve<br>through the points?
+<input type=radio name=curve value='yes'>yes 
+<input type=radio name=curve value='no' checked>no 
+<br>
+Do you want a trend line?
+<input type=radio name=trend value='yes' checked>yes 
+<input type=radio name=trend value='no'>no 
+<br>
+data point color: <select name=dcolor>
+<option>black
+<option selected>blue
+<option>brown
+<option>green
+<option>purple
+<option>red
+<option>skyblue
+<option>teal
+<option>yellow
+</select>
+ size: <select name=ptsize>
+<option>1
+<option>2
+<option>3
+<option selected>4
+<option>5
+<option>6
+<option>8
+</select>
+<br>
+curve color: <select name=ccolor>
+<option selected>black
+<option>blue
+<option>brown
+<option>green
+<option>purple
+<option>red
+<option>skyblue
+<option>teal
+<option>yellow
+</select>
+<br>
+Using a button:
+<input type=button value=Graph onclick=doexample()>
+</form>
+
+Or, not using a form:
+
+<a href=javascript:doexample()>Graph</a>
+</body></html>

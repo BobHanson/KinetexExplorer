@@ -1,0 +1,104 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Simulate_init()
+>
+
+<script language=javascript>
+Simulate_sayh("inhibit")
+
+Model_createNew("rxn1")
+Model_addComponent("O3",1,"blue")
+Model_addComponent("O2",0,"red")
+Model_setMechStep("O3 <--> O2 + O","k1=0.1,k_1=1")
+Model_setMechStep("O3 + O --> O2 + O2","k1=1")
+Model_hideInfo("Temp")
+Model_fixInfo("Mech,Rate")
+Model_setTemp(298)
+Model_select("O3")
+Expt_setParameters("ismini=true")
+
+Graph_setBox(50,30,450,125)
+Graph_setTarget("mygraph")
+Graph_setYmax(1.2)
+
+
+</script>
+
+
+<table xborder=3>
+
+<tr>
+<td>
+
+ <table xborder=2>
+<tr><td>
+<script language=javascript>Model_show("rxn1")</script>
+</td>
+</tr>
+<tr>
+<td>
+
+  <table xborder=1>
+  <tr>
+  <td valign=top><script language=javascript>Expt_show("rxn1")</script></td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+ </table>
+
+
+</td>
+<td valign=top>
+
+  <table xborder=1>
+  <tr>
+  <td width=100 valign=top></td>
+  <td width=200>
+	<h4><font color=blue>
+
+INFO HERE
+<p><script language=javascript>Analysis_show("rxn1")</script>
+
+</font></h4>
+  </td>
+  </tr>
+  <tr>
+  <td colspan=2 valign=top></td>
+  </tr>
+  </table>
+
+</td>
+</tr>
+
+<tr>
+<td colspan=3><img src=gif/graph.gif width=600 height=180 name=mygraph></td>
+</tr>
+</table>
+
+<script language=javascript>
+//can't show graph while in the table. MUST have a target for IE.
+Simulate_sayq()
+Graph_show("rxn1")
+</script>
+
+</body>

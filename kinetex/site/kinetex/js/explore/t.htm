@@ -1,0 +1,70 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Model_init();
+>
+<script language=javascript>
+Explore_sayh("tiny5",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1/1.414,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("2A + B --> C")
+Model_setRateLaw("k[A][B]")
+Model_setConstant("k",0.3)
+Model_setTemp(298)
+Expt_setEndTime(20)
+Model_select("ABC")
+Data_setRows(7)
+Graph_setYmax(1)
+Graph_setBox(0,35,0,100)
+//Graph_setImageSize(0,150)
+Graph_setParameters("yticminor=0.05|yticmajor=0.2|xaxislabel='time (sec)'")
+Graph_setTarget("rxn1graph")
+</script>
+<table width=600>
+<tr><td>
+<table width=600>
+<tr>
+<td width=200><script language=javascript>Rxn_show("rxn1")</script></td>
+<td width=400><script language=javascript>Data_show("rxn1")</script></td>
+</tr>
+<tr>
+<td colspan=2><p>
+<script language=javascript>Explore_say("","<a href=javascript:Expt_startAll()>Start the reaction</a>",isqonly)</script>
+</td>
+</tr>
+<tr>
+<td width=600 colspan=2><img src=gif/graph.gif width=480 height=170 name=rxn1graph></td>
+</tr>
+</table>
+</td></tr>
+<tr><td>
+<script language=javascript>
+Q_ask("From the graph, how can you tell that A and B are reactants, while C is a product?"
+,"The concentrations of A and B both decrease with time, while the concentration of C increases. So A and B are reactants, and C is a product.")
+Q_ask("From the graph, how can you tell that the coefficient of A in the chemical equation for this reaction is different from the coefficient of B?"
+,"The concentrations of A and B both decrease with time, but the concentration of A decreases much faster than the concentration of B. So their coefficients must be different.")
+Explore_sayq("tiny5",isqonly)
+</script></td>
+</td></tr>
+</table>
+<script language=javascript>Graph_show("rxn1",true)</script>
+</body>

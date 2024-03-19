@@ -1,0 +1,68 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=simulate.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+<script language=javascript src=debug.js></script>
+</head>
+<body
+ onmousedown=GRmouseevent()
+ onmousemove=GRmouseevent()
+ onmouseup=GRmouseevent()
+
+ onload=Simulate_init();
+>
+<script language=javascript>
+Simulate_sayh("tiny9",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("A",0.5,"blue")
+Model_addComponent("B",1/1.414,"colorless")
+Model_addComponent("C",0,"red")
+Model_setOverallEquation("A + 2B --> C")
+Model_setRateLaw("k[A][B]2")
+Model_setConstant("k",0.3)
+Model_setTemp(298)
+Model_select("ABC")
+Expt_setEndTime(20)
+Analysis_hideInfo("rate")
+Graph_setYmax(1)
+Graph_setParameters("yticminor=0.05|yticmajor=0.2|xaxislabel='time (sec)'")
+Graph_setTarget("rxn1graph")
+</script>
+<table width=700>
+<tr><td>
+<table width=700>
+<tr>
+<td width=300><script language=javascript>Analysis_show("rxn1",true)</script></td>
+<td width=400><img src=gif/graph.gif  name=rxn1graph></td>
+</tr>
+</table>
+</td></tr>
+<tr><td>
+<a href=javascript:Debug_showObj()></a>
+<a href=javascript:alert(lastobj)></a>
+
+<script language=javascript>
+Q_ask("Provided we have a chemical equation of the form <i>a</i>A + <i>b</i>B --> <i>c</i>C, the \"rate\" of the reaction is defined as<br><img src=../../concept/rate.gif><br>What is the initial rate of this reaction based on the equation A + 2B --> C?",
+"Since C is a product and its coefficient is 1, the initial rate of the reaction is the initial value of d[C]/dt, 0.075 mol/L/sec. Alternatively, we could have used (-1)d[A]/dt or (-1/2)d[B]/dt. Each of these will give the same value for the rate of the reaction.")
+Q_ask("What is the initial rate of this reaction based on the equation 2A + 4B --> 2C?",
+"Since C is a product and its coefficient is 2, the initial rate of the reaction is (1/2)d[C]/dt = 0.0375 mol/L/sec. Alternatively, we could have used (-1/2)d[A]/dt or (-1/4)d[B]/dt. Each of these will give the same value for the rate of the reaction based on this chemical equation.")
+Q_ask("What is the rate of this reaction after 10 seconds based on the equation A + 2B --> C? How does this relate to the initial rate of the reaction?",
+"Since C is a product and its coefficient is 1, the rate of the reaction is d[C]/dt = 0.0069 mol/L/sec. (This number is arrived at be clicking on the curve for C at 10 seconds.) This is less than a tenth of the initial reaction rate, 0.075 mol/L/sec.")
+Q_ask("Will this reaction ever end?","It appears that the reaction will continue forever. At some point, though it will be \"complete\" in the sense that we will not be able to observe any further reaction.")
+
+Simulate_sayq("tiny9",isqonly)
+</script></td>
+</td></tr>
+</table>
+<script language=javascript>Graph_show("rxn1",true)</script>
+</body>

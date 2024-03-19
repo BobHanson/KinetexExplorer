@@ -1,0 +1,116 @@
+<script language=javascript>
+/*
+key fixed 6:07 AM 4/16/2003
+*/
+</script>
+<style type=text/css>
+body {background-color:silver}
+code,pre {color:blue}
+td {background-color:lightgrey}
+</style>
+<body bgcolor=silver>
+<h3>User-Modifyable Parameters for ../common/divgraph.js</h3>
+To set, use a javascript statement such as:
+<pre>
+Info.curvecolor="red"
+Info.graphleft=Info.graphtop=50
+</pre>
+prior to the call to <code>GRdrawgraph()</code>. Then be sure to include the Info parameter (the 4th parameter).
+"NaN" is a special way in JavaScript of showing that a value is "not any number."
+<p>
+<table border=1>
+<tr><th>parameter<th>default value<th>comments
+<tr><td>alert	<td>	""	<td>	message to be sent to the user after display is complete.
+<tr><td>anchor	<td>	"0,0"	<td>	the top left-hand corner of the graphing "window" or the name of an element of the page such as an image upon which the graph is based. For example, using
+&lt;img name=anchor src=transp.gif width=300 height=300> 
+would require <code>Info.anchor=anchor</code>.
+
+Setting this paramenter to a named element on the page allows resizing of the graph to occur correctly. If an element is indicated, place "onresize=GRresize()" in the body tag as well.
+<tr><td>append	<td>	false	<td>	set <code>Info.append=true</code> to indicate that the previous graph should be used as a base for this one. No axes will be drawn, and the previous x/y range will be used.
+<tr><td>bgcolor	<td>	""	<td>	"color" of plotting surface (default is no plotting surface). If defined as, for example, <code>Info.bgcolor="red"</code>, then red.gif must be available.
+<tr><td>curvecolor	<td>	black	<td>	color of the spline curve for (x,y) data. Set to a blank string ("") to indicate that the curve color is to come from the point color, and color is being used to separate curves. In that case, data must be sequential, with increasing x.
+<tr><td>datamargin	<td>	0.05	<td>	the fraction of the plotting surface to allot to a margin around data when maxima and minima are unspecified; also used for mouse picking
+<tr><td>datatransform	<td>	"y vs. x"	<td>	functions to apply to string-based data--for example, ln(y) vs. 1/x or sqrt(y) vs. x^2. IGNORED when Data are presented as an array already and the first parameter of <code>GRdrawgraph()</code> is an empty string.
+<tr><td>debug	<td>	false	<td>	set <code>Info.debug=true</code> to get alerts related to debugging
+<tr><td>defaultcolor	<td>	""	<td>	default color for the function to be drawn or for (x,y) points indicating no color. If this is left blank, and a color is indicated for a point, then that color will be taken as the default for future points. That is, a change of color need only be indicated once when the default color is not specified.
+<tr><td>docurve	<td>	*	<td>	*default is <code>true</code> for functions and <code>false</code> for data. Set <code>Info.docurve=true</code> to include a cubic spline for (x,y) data or set <code>Info.docurve=false</code> to NOT smooth f(x).
+<tr><td>dogridx	<td>	false	<td>	set <code>Info.dogridx=true</code> to display vertical grid lines along with the x-axis tics. 
+<tr><td>dogridy	<td>	false	<td>	set <code>Info.dogridy=true</code> to display horizontal grid lines along with the y-axis tics.
+<tr><td>dopoints	<td>	true	<td>	set <code>Info.dopoints=false</code> to not display x,y points or to draw smooth functions.
+<tr><td>doptlabels	<td>	true	<td>	set <code>Info.doptlabels=false</code> to not display "alternative" tags when the point is moved over with the mouse.
+<tr><td>dotrendline	<td>	false	<td>	set <code>Info.dotrendline=true</code> to draw a trend line for (x,y) data. On return, GR.L.m is the slope, and GR.L.b is the intercept.
+<tr><td>dotrendeqn	<td>	true	<td>	set <code>Info.dotrendeqn=true</code> to show the trend line equation y = m x + b. Ignored if <code>Info.dotrendline=false</code>.
+<tr><td>doxaxis	<td>	true	<td>	set <code>Info.doxaxis=false</code> to turn off the x-axis.
+<tr><td>doxticnums	<td>	false	<td>	set <code>Info.doxticnums=true</code> to show numbers along with the major x-axis tics.
+<tr><td>doxtics	<td>	true	<td>	set <code>Info.doxtics=false</code> to turn off x-tics.
+<tr><td>doyticnums	<td>	false	<td>	set <code>Info.doyticnums=true</code> to show numbers along with the major y-axis tics.
+<tr><td>doyaxis	<td>	true	<td>	set <code>Info.doyaxis=false</code> to turn off the y-axis.
+<tr><td>doytics	<td>	true	<td>	set <code>Info.doytics=false</code> to turn off y-tics.
+<tr><td>graphheight	<td>	200	<td>	plotting surface height, in pixels
+<tr><td>graphleft	<td>	50	<td>	plotting surface left, in pixel
+<tr><td>graphtop	<td>	50	<td>	plotting surface top, in pixels
+<tr><td>graphwidth	<td>	200	<td>	plotting surface width, in pixels
+<tr><td>histogram	<td>	0	<td>	set <code>Info.histogram=1</code> for vertical bars; set <code>Info.histogram=2</code> for horizontal bars
+<tr><td>imagedir	<td>	.	<td>	directory for GIF images that are used for colors
+<tr><td>info	<td>	""	<td>	document status to display while running (not working?)
+<tr><td>keepopen	<td>	false	<td>	set <code>Info.keepopen=true</code> to prevent resetting of variables. Required any time <code>Info.append=true</code> is used in the NEXT plot. Automatically set to true if <code>Info.maxaddpoints</code> is greater than 0.
+<tr><td>key	<td>	""	<td>	add a color key for multiple data sets. For example, "red=Sample 1|blue=Sample 2|green=Sample 3" (NOTE: Originally the separator was a semicolon, but that has problems with special charater definitions. So this was changed to "|". For backwards compatibility, ";" is retained, but only if no "|" is present. Thus, it is recommended that all keys start or end with "|" if there is any possibility that a semicolon might be in the key somewhere.
+<tr><td>keyx	<td>	200	<td>	horizontal position for key information, in pixels from the left
+<tr><td>keyy	<td>	60	<td>	vertical position for key information, in pixels from the top
+<tr><td>labelsonly	<td>	false	<td>	set <code>labelsonly=true</code> to draw labels instead of points with ALT tags
+<tr><td>linewidth	<td>	1	<td>	line width for curves and trend lines, in pixels
+<tr><td>majorticlength	<td>	8	<td>	length of major tics in pixels
+<tr><td>maxaddpoints	<td>	0	<td>	the number of points to allow the user or program to add AFTER display. (NOTE: for printing in Netscape Navigator, a call to <a target=func href=function.htm#replot>GRreplot()</a> is necessary after adding points. See <a href=example8.htm>example8.htm</a>)
+<tr><td>minorticlength	<td>	5	<td>	length of minor tics in pixels
+<tr><td>mouseon 	<td>	true	<td>	set <code>Info.mouseon=false</code> to disable mouse events. This is useful in Netscape 7, where a bug in NN causes a spurious error to appear.
+<tr><td>mousetest	<td>	false	<td>	set <code>Info.mousetest=true</code> to debug mouse events.
+<tr><td>onmousedown	<td>	null	<td>	name of the function to use for processing mouse down events. See <a href=examplec.htm>examplec.htm</a>
+<tr><td>onmousemove	<td>	null	<td>	name of the function to use for processing mouse move events. See <a href=examplec.htm>examplec.htm</a>
+<tr><td>onmouseup	<td>	null	<td>	name of the function to use for processing mouse up events. See <a href=examplec.htm>examplec.htm</a>
+<tr><td>overwrite	<td>	0	<td>	Set <code>Info.overwrite</code> to a graph number to overwrite a graph, reusing the points. If you do this, the exact same number of points must be present in the overwritten function.
+<tr><td>ptsize	<td>	*see note	<td>	size for lines, curves and data points in pixels (defaults are 4 for points and 1 for lines).
+<tr><td>quicktrend	<td>	true	<td>	draw a quick trend line using files line1.gif and line2.gif. Lines close to vertical or horizontal will be dotted.
+<tr><td>style	<td>	""	<td>	cascading style information for the plot. For example, <code>body {background-color:silver}</code>. Built-in style
+classes are shown below, with defaults indicated:
+<pre>
+.body {font-size:10pt;color:black}
+.keylabel {font-size:10pt;font-weight:bold;color:black}
+.ptlabel {font-size:10pt;font-weight:normal;font-style:italic}
+.trendeqn {font-size:10pt;font-weight:normal;color:black}
+.xaxisnum {font-size:10pt;font-weight:normal;color:black}
+.xlabel {font-size:10pt;font-weight:normal;color:black}
+.yaxisnum {font-size:10pt;font-weight:normal;color:black}
+.ylabel {font-size:10pt;font-weight:normal;color:black}
+</pre>
+<tr><td>ticwidth	<td>	2	<td>	width of tics, in pixels.
+<tr><td>title	<td>	""	<td>	title for the plot. Include any HTML tags you want.
+<tr><td>trendcolor	<td>	black	<td>	color of the trend line for (x,y) data
+<tr><td>trenddigits	<td>	&#150;3	<td>	number of digits of precision for the trend-line equation. Positive numbers indicate fixed notation; negative numbers indicate to use scientific notation. If unspecified, automatic
+<tr><td>trendlabelx	<td>	60	<td>	horizontal position for trend-line equation, in pixels from the left
+<tr><td>trendlabely	<td>	60	<td>	vertical position for trend-line equation, in pixels from the top
+<tr><td>xaxisaty	<td>	0	<td>	vertical position for x-axis, in user coordinates
+<tr><td>xaxislabel	<td>	"x"	<td>	label for the x-axis
+<tr><td>xaxislabelx	<td>	*	<td>	x-axis label x-position. Default is just to the right of the x-axis. Specify this in user coordinates. Specifying <code>Info.xaxislabelx=NaN</code> indicates roughly centered on the plotting surface
+<tr><td>xaxislabely	<td>	*	<td>	x-axis label y-position. Default is in line with the y axis. Specify this in user coordinates. Specifying <code>Info.xaxislabely=NaN</code> indicates 30 pizels to the right of the right edge of the graph.
+<tr><td>xclip	<td>	true	<td>	set <code>Info.xclip=false</code> to allow data to extend beyond the plotting surface horizontally.
+<tr><td>xmax	<td>	NaN	<td>	maximum for x. Setting <code>Info.xmax=NaN</code> indicates that it should be determined on the fly (by prompt for functions of x, or based on the data for x,y data).
+<tr><td>xmin	<td>	NaN	<td>	minimum for x. If <code>Info.xmin</code> > <code>Info.xmax</code>, then the axis will run backwards, from right to left
+<tr><td>xnumdigits	<td>	NaN	<td>	number of digits of precision for the x-axis numbers. Positive numbers indicate fixed notation; negative numbers indicate to use scientific notation. If unspecified, automatic
+<tr><td>xstep	<td>	1	<td>	a factor used to make plotting of functions and trendlines faster.
+<tr><td>xticfirst	<td>	NaN	<td>	lowest x-number to get a tic, in user units. If left undefined while any of <code>Info.xticmajor</code>, <code>Info.xticminor</code>, or <code>Info.doxticnums</code> is defined, then it is set to the value of <code>Info.xmin</code>, either as defined or as determined.
+<tr><td>xticmajor	<td>	"auto"	<td>	distance between major x-axis tics, in user units. Setting <code>Info.xticmajor=NaN</code> or a negative value turns off major x-axis tics.
+<tr><td>xticminor	<td>	"auto"	<td>	distance between minor x-axis tics, in user units. Setting <code>Info.xticminor=NaN</code> or a negative value turns off minor x-axis tics.
+<tr><td>xvar	<td>	"x"	<td>	x-variable name to use if not "x" in the trend equation and for the x-label. Setting this ONLY affects labels, not calculation. To transform the data, use <code>Info.datatransform</code>.
+<tr><td>yaxisatx	<td>	0	<td>	horizontal position for y-axis, in user coordinates
+<tr><td>yaxislabel	<td>	"y"	<td>	label for the y-axis
+<tr><td>yaxislabelx	<td>	*	<td>	y-axis label x-position. Default is in line with the x-axis. Specify this in user coordinates. Specifying <code>Info.yaxislabelx=NaN</code> indicates 50 pixels left of the left edge of the graph.
+<tr><td>yaxislabely	<td>	*	<td>	y-axis label y-position. Default is in just above the y axis. Specify this in user coordinates. Specifying <code>Info.yaxislabely=NaN</code> indicates roughly centered vertically on the plotting surface.
+<tr><td>yclip	<td>	true	<td>	set <code>Info.yclip=false</code> to allow f(x) and data to extend beyond the plotting surface vertically.
+<tr><td>ymax	<td>	NaN	<td>	maximum for y. Setting <code>Info.ymax=NaN</code> indicates that it should be determined based on the data or function values.
+<tr><td>ymin	<td>	NaN	<td>	minimum for y. If <code>Info.ymin</code> > <code>Info.ymax</code>, then the axis will run backwards, from top to bottom.
+<tr><td>ynumdigits	<td>	NaN	<td>	number of digits of precision for the y-axis numbers. Positive numbers indicate fixed notation; negative numbers indicate to use scientific notation. If unspecified, automatic
+<tr><td>yticfirst	<td>	NaN	<td>	lowest y-number to get a tic, in user units. If left undefined while any of <code>Info.yticmajor</code>, <code>Info.yticminor</code>, or <code>Info.doyticnums</code> is defined, then it is set to the value of <code>Info.ymin</code>, either as defined or as determined.
+<tr><td>yticmajor	<td>	"auto"	<td>	distance between major y-axis tics, in user units.  Set to <code>auto</code> for automatic calculation. Setting <code>Info.yticmajor=NaN</code> or a negative value turns off major y-axis tics.
+<tr><td>yticminor	<td>	"auto"	<td>	distance between minor y-axis tics, in user units.  Set to <code>auto</code> for automatic calculation. Setting <code>Info.yticminor=NaN</code> or a negative value turns off minor y-axis tics.
+<tr><td>yvar	<td>	"y"	<td>	y-variable name to use if not "y" in the trend equation and for the y-label. Setting this ONLY affects labels, not calculation. To transform the data, use <code>Info.datatransform</code>.
+</table>

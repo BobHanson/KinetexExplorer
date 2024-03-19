@@ -1,0 +1,100 @@
+<html>
+<head>
+<script language=javascript src=divs.js></script>
+<script language=javascript src=../common/divgraph.js></script>
+<script language=javascript src=model.js></script>
+<script language=javascript src=util.js></script>
+<script language=javascript src=debug.js></script>
+
+<script language=javascript src=expt.js></script>
+<script language=javascript src=rxn.js></script>
+<script language=javascript src=data.js></script>
+<script language=javascript src=graph.js></script>
+<script language=javascript src=analysis.js></script>
+<script language=javascript src=explore.js></script>
+</head>
+<body
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+  onmouseup=GRmouseevent()
+  onload=Model_init(-1);
+>
+
+<script language=javascript>
+Explore_sayh("inter2",isqonly)
+Model_createNew("rxn1")
+Model_addComponent("NO2",0.6,"blue")
+Model_addComponent("NO3",0,"colorless")
+Model_addComponent("NO",0,"red")
+Model_addComponent("CO",0.5,"green")
+Model_addComponent("CO2",0,"black")
+Model_setParameters("overallequation='NO2 + CO --> NO + CO2'")
+Model_setOverallEquation("NO2 + NO2 --> NO3 + NO")
+Model_setRateLaw("k1[NO2]^2")
+Model_setConstant("k1",0.01)
+Model_setOverallEquation("NO3 + CO --> CO2 + NO2")
+Model_setRateLaw("k2[NO3][CO]")
+Model_setConstant("k2",1)
+Model_hideInfo("[NO3],[NO],[CO2],Temp")
+Model_fixInfo("Overall,Mechanism,Rate Law")
+//Model_select("A")
+
+Model_setTemp(298)
+Analysis_setParameters("ismini=true")
+
+//Data_setParameters("dXdt=true")
+
+Graph_setImageSize(500,180)
+Graph_setBox(50,30,350,125)
+Graph_setTarget("mygraph")
+Graph_setYmax(1.4)
+
+Analysis_hideInfo("rate")
+</script>
+
+
+<table width=700 cellspacing=0 cellpadding=0 xborder=3>
+
+<tr><td>
+<script language=javascript>Model_show("rxn1")</script>
+<br>
+&nbsp;
+&nbsp;
+&nbsp;
+
+<script language=javascript>Analysis_show("rxn1")</script>
+<br>
+&nbsp;
+<br>
+&nbsp;
+<br>
+</td>
+<td>
+<input type=checkbox value=0 onclick=Data_showDerivatives(checked)>Tabulate Derivatives
+<br>
+<script language=javascript>Data_show("rxn1")</script>
+<br>
+<img src=gif/graph.gif width=500 height=180 name=mygraph>
+
+</td>
+</tr>
+<tr>
+<td colspan=2>
+
+<script language=javascript>
+Q_ask("Check the \"Tabulate Derivatives\" box to show <i>rates of change</i> in concentrations instead of the concentrations themselves. Write down the rate of change of CO<sub>2</sub> you find. Now try increasing the value of <i>k</i><sub>2</sub>, to 20 or so. What do you notice about <i>d</i>[CO<sub>2</sub>]/<i>dt</i>?","The rate of the reaction doesn't depend upon the value of k2 at all. We call the first step the \"rate-determining step\" of the reaction.")
+Q_ask("Check the initial rate of the reaction before and after changing concentrations of NO<sub>2</sub> and CO. What is the rate law for the overall reaction?","You should find that the rate of the reaction only depends upon [NO2], not [CO]. We find that the rate law is k[NO2]^2, just exactly what we have for the first step of the reaction.")
+
+Explore_sayq("inter2",isqonly)
+</script>
+
+</td>
+</tr>
+</table>
+
+<script language=javascript>
+//can't show graph while in the table. MUST have a target for IE.
+Graph_show("rxn1")
+</script>
+
+</body>

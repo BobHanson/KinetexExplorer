@@ -1,0 +1,160 @@
+<html>
+<head>
+<link rel=STYLESHEET type=text/css href=examples.css>
+<script type="text/javascript" src=divgraph.js></script>
+<script type="text/javascript" src=examples.js></script>
+<script type="text/javascript">
+
+
+function mousemove(e,D){
+ showxy(D.userx,D.usery)
+}
+
+function mousedown(e,D){
+ showxy(D.userx,D.usery)
+ addtextpoint(D.userx,D.usery,D.button)
+ if(document.info.showevent.checked)GRdebugwrite(GRshow(D,"D")+"\nNote: the \"e\" object would be different using "+(GR.isnn4?"Explorer":"Navigator")+".\n\n"+GRshow(e,"e"))
+}
+
+function showxy(x,y){
+ GRdivwrite(GR.List[1].ptdata0,"<h3>("+GRroundoff(x)+","+GRroundoff(y)+")</h3>")
+}
+
+function addtextpoint(x,y,button){
+ if(isNaN(x) || isNaN(y))return
+ var s=GRroundoff(x)+","+GRroundoff(y)
+ ;(button==1?document.info.leftbutton.value+=s+"\n":document.info.rightbutton.value+=s+"\n")
+ GRaddpoint(x,y,"("+s+")"+"| "+(GR.List[1].nadd+1),(button==1?"red":"blue"))
+}
+
+
+function dograph(){
+ GRsetgraphwindow()
+ Info=new Array()
+ Info.style=".xaxisnum {font-size:8pt} .yaxisnum {font-size:8pt}"
+ Info.xmin=Info.ymin=0
+ Info.xmax=Info.ymax=10
+ Info.graphleft=75
+ Info.graphtop=30
+ Info.graphwidth=200
+ Info.graphheight=150
+ Info.ticwidth=1
+ Info.dogridx=Info.dogridy=true
+ Info.xaxislabel=""
+ Info.yaxislabel=""
+ Info.ptsize=4
+ Info.anchor="Graph1"
+ Info.maxaddpoints=50
+ Data=new Array([6.5,12,"transp"])
+ Info.onmousedown="mousedown"
+ Info.onmousemove="mousemove"
+ GRdrawgraph("",Data,"",Info)
+}
+
+</script>
+
+</head>
+<body bgcolor=silver 
+ onload="document.info.leftbutton.value=document.info.rightbutton.value=''"
+ onresize=GRresize() 
+ onmousemove=GRmouseevent() 
+ onmousedown=GRmouseevent()
+>
+<center><table><tr>
+<td><a href=example0.htm><img border=0 src=back.gif></a>
+<td>
+<h1>Tracking Mouse Events</h1>
+</table>
+</center>
+<a name=top>
+<h3>
+This page shows how to use divgraph.js to easily track the user's 
+mouse movement and clicking. Note that when you click on the 
+graph below, the (x,y) coordinates in the graph's system are 
+recorded, and up to 50 points are displayed on the graph.
+
+</h3>
+</a>
+<form name=info>
+<table>
+<tr>
+<td width=150><p><font color=darkred>Left-Button Points</font>
+<br><textarea name=leftbutton rows=6 cols=20 wrap=virtual></textarea>
+<td width=300 bgcolor=white>
+<center>
+<img name=Graph1 src=transp.gif width=300 height=200>
+<br><input type=checkbox name=showevent>Show mousedown event
+
+</center>
+<td width=150><p><font color=darkblue>Right-Button Points</font>
+<br><textarea name=rightbutton rows=6 cols=20 wrap=virtual></textarea>
+</table>
+
+<p>
+The initial graph in this case is produced by the function <code>dograph()</code>, which plots a pair
+of axes and a hidden (transparent) point that will be used for the running coordinate position display.
+A maximum of 50 points will be displayed.
+
+<script type="text/javascript">showfunc(dograph)</script>
+<p>
+The key parameters of interest in this case are <code>Info.onmousedown="mousedown"</code> and <code>Info.onmousemove="mousemove"</code>,
+which direct divgraph.js to send a call to <code>mousedown()</code> when the mouse is pressed 
+down and <code>mousemove()</code> when the mouse is moved.
+In addition, to be compatible with Microsoft Interent Explorer, the &lt;body> tag must contain
+the following directives for the mousedown and mousemove events:
+<pre>
+  onmousemove=GRmouseevent()
+  onmousedown=GRmouseevent()
+</pre>
+<p>(<code>Info.onmouseup</code> is also an option that can be 
+used to track the dragging of objects.) The function 
+<a target=func href=function.htm#mouseevent>GRmouseevent()</a> handles mousemove, mouseup, and 
+mousedown events, translating the coordinates provided by the browser, and creating the following
+structure:
+
+<p>
+<table>
+<tr><td width=100 nowrap valign=top><code>D.ngraph</code><td><p>the number of the graph the click or move was in
+<tr><td width=100 nowrap valign=top><code>D.button</code><td><p>the button pressed (left=1, middle=2, right=3)
+<tr><td width=100 nowrap valign=top><code>D.docx</code><td><p>the document-based x-coordinate
+<tr><td width=100 nowrap valign=top><code>D.docy</code><td><p>the document-based y-coordinate
+<tr><td width=100 nowrap valign=top><code>D.anchorx</code><td><p>the anchor-based x-coordinate
+<tr><td width=100 nowrap valign=top><code>D.anchory</code><td><p>the anchor-based y-coordinate
+<tr><td width=100 nowrap valign=top><code>D.userx</code><td><p>the user-based x-coordinate
+<tr><td width=100 nowrap valign=top><code>D.usery</code><td><p>the user-based y-coordinate
+</table>
+
+<p>
+This structure is passed on to the functions <code>mousemove()</code> and <code>mousedown()</code> along with
+the event structure created by the browser (which in this case is ignored).
+
+<script type="text/javascript">showfunc(mousemove,mousedown)</script>
+<p>
+These functions in turn call <code>showxy()</code> and <code>addtextpoint</code>, which provide
+the feedback shown here.
+
+<script type="text/javascript">showfunc(showxy,addtextpoint)</script>
+<p>
+Thus, to intercept the user's mouse actions, you need to:
+<ol>
+<li><p>Indicate which mouse events you want to intercept in the <code>Info</code> structure, 
+along with the functions you are providing to handle the event information.
+<li><p>Add "onmouse...=GRmouseevent()" parameters to the &lt;body> tag for compatibility with Microsoft Internet Explorer.
+<li><p>Provide functions to handle each desired event.
+</ol>
+<p>
+Once this is done, you can have full interaction with the user 
+in <i>your</i> coordinate system. 
+There are many applications other than graphing for which 
+this might be useful. 
+You could, for example, offer the user a GIF image and, displaying no
+axes (using <code>Info.doxaxis=Info.doyaxis=false</code>), ask the user 
+to point to various places on the image, giving appropriate 
+feedback as they do. This could also be
+done with imagemaps, but that is far more 
+cumbersome in terms of preparation time and translation of coordinates, 
+and isn't a solution for graphing done real-time.) 
+<p>
+<script type="text/javascript">dograph()</script>
+<center><a href=example0.htm><img border=0 src=back.gif> back to the list of examples</a></center><small><p><hr><p><small>copyright 2001 <a href=mailto:hansonr@stolaf.edu?subject=divgraph>Robert M. Hanson</a>. All rights reserved. divgraph.js is freely distributable for noncomercial purposes, provided reference is made as  "divgraph.js was developed at St. Olaf College by Robert M. Hanson (http://www.stolaf.edu/people/hansonr/divgraph)." Commercial licensing is available for specific purposes.</small></body>
+</html>
